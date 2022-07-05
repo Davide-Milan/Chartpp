@@ -1,4 +1,5 @@
 #include "view.h"
+#include "controller.h"
 
 View::View(QWidget *parent)
     : QWidget(parent)
@@ -7,7 +8,7 @@ View::View(QWidget *parent)
 
     //menus
     addMenus();
-    mainLayout->addMenuBar(menuBar);
+    mainLayout->setMenuBar(menuBar);
 
     //left
     setUpLeftLayout();
@@ -17,6 +18,7 @@ View::View(QWidget *parent)
 
 
     //styling
+    setLayout(mainLayout);
     mainLayout->setContentsMargins(10,0,10,10);
 }
 
@@ -24,7 +26,12 @@ View::~View()
 {
 }
 
-void MainWindow::addMenus()
+void View::setController(Controller* c) {
+    controller = c;
+    linkButtons();
+}
+
+void View::addMenus()
 {
     menuBar = new QMenuBar(this);
     file = new QMenu("File", menuBar);
@@ -47,7 +54,7 @@ void MainWindow::addMenus()
     menuBar->connect(file->actions()[2], SIGNAL(triggered()), this, SLOT(close()));
 }
 
-void MainWindow::setUpLeftLayout()
+void View::setUpLeftLayout()
 {
     //create buttons
     loadDataButton = new QPushButton("Load file", this);
@@ -58,18 +65,24 @@ void MainWindow::setUpLeftLayout()
     deleteColumnButton = new QPushButton("Delete column", this);
 
     //create layouts + basic styling
-    dataArea = new QVBoxLayout(this);
+    scrollWidget = new QWidget(this);
+    dataArea = new QGridLayout(scrollWidget);
+    for(int i = 0; i < 5; i++){
+        dataArea->addWidget(new QLineEdit(scrollWidget),i,i);
+    }
+
     dataArea->setSpacing(0);   //sets space between cells
-    dataAreaScroll = new QScrollArea();
-    dataAreaScroll->
-    QWidget* spacer = new QWidget(this); spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding); //trick for empty space to keep buttons on the bottom side of the dataArea
-    leftButtons = new QHBoxLayout(this);
-    leftArea = new QVBoxLayout(this);
+    scrollWidget->setLayout(dataArea);
+    dataAreaScroll = new QScrollArea(this);
+    dataAreaScroll->setWidget(scrollWidget);
+    dataAreaScroll->setMinimumHeight(500);
+    dataAreaScroll->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    leftButtons = new QHBoxLayout();
+    leftArea = new QVBoxLayout();
     leftArea->setContentsMargins(0,0,0,0);
 
     //setup layout hierarchy
-    leftArea->addLayout(dataArea);
-    leftArea->addWidget(spacer);
+    leftArea->addWidget(dataAreaScroll);
     leftArea->addLayout(leftButtons);
 
     //setup widgets in layouts
@@ -79,4 +92,48 @@ void MainWindow::setUpLeftLayout()
     leftButtons->addWidget(deleteRowButton);
     leftButtons->addWidget(addColumnButton);
     leftButtons->addWidget(deleteColumnButton);
+
+}
+
+
+void View::linkButtons()
+{
+    connect(addRowButton, SIGNAL(clicked()), controller, SLOT(addRow()));
+    connect(addColumnButton, SIGNAL(clicked()), controller, SLOT(addColumn()));
+    connect(deleteRowButton, SIGNAL(clicked()), controller, SLOT(deleteRow()));
+    connect(deleteColumnButton, SIGNAL(clicked()), controller, SLOT(deleteColumn()));
+}
+
+void View::addRow()
+{
+    unsigned int size = controller->getDataMatrixWidth();
+    if (size != 0){
+        QTextStream(stdout) << "iffffffffff" << endl;
+        for(unsigned int x = 0; x <= size; x++){
+            int y = controller->getDataMatrixHeigth() - 1;
+            QLineEdit* tmp = new QLineEdit(scrollWidget);
+            tmp->setObjectName(QString::number(x).append(",").append(QString::number(y)));
+            dataArea->addWidget(tmp, y, x);
+        }
+    }
+    else{
+        QTextStream(stdout) << "elseeeee" << endl;
+        QLineEdit* tmp = new QLineEdit(scrollWidget);
+        tmp->setObjectName("0,0");
+        QTextStream(stdout) << QString::number(dataArea->count()) << endl;
+        dataArea->addWidget(tmp,6,6);
+        QTextStream(stdout) << QString::number(dataArea->count()) << endl;
+    }
+}
+void View::deleteRow()
+{
+
+}
+void View::addColumn()
+{
+
+}
+void View::deleteColumn()
+{
+
 }

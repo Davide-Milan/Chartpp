@@ -43,13 +43,13 @@ private:
 
     Controller* controller;
 
-    QVBoxLayout* auxLayout; //used to get mainlayout underneath menubar without having them overlapped
     QHBoxLayout* mainLayout;
 
     //left layout
     QVBoxLayout* leftArea;
-    QVBoxLayout* dataArea;
     QScrollArea* dataAreaScroll;
+    QWidget* scrollWidget;
+    QGridLayout* dataArea;
     QHBoxLayout* leftButtons;
 
     QPushButton* saveDataButton;
@@ -61,9 +61,15 @@ private:
 
     void addMenus();
     void setUpLeftLayout();
-
+    void linkButtons();
 public:
     View(QWidget *parent = nullptr);
     ~View();
+    void setController(Controller *);
+
+    void addRow();
+    void deleteRow();
+    void addColumn();
+    void deleteColumn();
 };
 #endif // VIEW_H

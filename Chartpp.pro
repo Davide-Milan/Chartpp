@@ -11,13 +11,21 @@ CONFIG += c++17
 
 SOURCES += \
     controller.cpp \
+    data.cpp \
     main.cpp \
+    matrix.cpp \
     model.cpp \
+    numericData.cpp \
+    textData.cpp \
     view.cpp
 
 HEADERS += \
     controller.h \
+    data.h \
+    matrix.h \
     model.h \
+    numericData.h \
+    textData.h \
     view.h
 
 # Default rules for deployment.

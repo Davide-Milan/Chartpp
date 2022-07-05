@@ -13,13 +13,19 @@ private:
     View* view;
     Model* model;
 
-    void setModel(Model*);
-    void setView(View*);
 public:
     explicit Controller(QObject *parent = nullptr);
+    void setModel(Model*);
+    void setView(View*);
+    unsigned int getDataMatrixWidth() const;
+    unsigned int getDataMatrixHeigth() const;
 
-signals:
 
+public slots:
+    void addRow();
+    void deleteRow();
+    void addColumn();
+    void deleteColumn();
 };
 
 #endif // CONTROLLER_H
