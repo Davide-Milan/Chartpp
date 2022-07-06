@@ -3,6 +3,8 @@
 
 #include <QWidget>
 
+#include "textBox.h"
+
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QScrollArea>
@@ -36,6 +38,7 @@ class View : public QWidget
     Q_OBJECT
 
 private:
+    QVector<QVector<TextBox*>> textBoxMatrix;
     QMenuBar* menuBar;
     QMenu* file;
     QMenu* edit;
@@ -71,6 +74,8 @@ public:
     void deleteRow();
     void addColumn();
     void deleteColumn();
+
+    void addFirstCell();
 
 signals:
     void senderPosition(unsigned int, unsigned int);

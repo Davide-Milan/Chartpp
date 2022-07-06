@@ -25,8 +25,8 @@ void Matrix::addRowMatrix(){
         }
     }
 
-    QTextStream(stdout) << "Matrix width: " + QString::number(dataMatrix.size())<<endl;      //LOG
     QTextStream(stdout) << "Matrix heigth: " + QString::number(dataMatrix[0]->size())<<endl; //LOG
+    QTextStream(stdout) << "Matrix width: " + QString::number(dataMatrix.size())<<endl;      //LOG
 }
 
 void Matrix::addColumnMatrix(){
@@ -36,6 +36,7 @@ void Matrix::addColumnMatrix(){
     else{
         dataMatrix.append(new QVector<Data*>(dataMatrix[0]->size(), new Data)); //adds new QVector<Data*> with default Datas, as many as matrix heigth
     }
-    QTextStream(stdout) << "Matrix width: " + QString::number(dataMatrix.size())<<endl;         //LOG
+
     QTextStream(stdout) << "Matrix heigth: " + QString::number(dataMatrix[0]->size())<<endl;    //LOG
+    QTextStream(stdout) << "Matrix width: " + QString::number(dataMatrix.size())<<endl;         //LOG
 }

@@ -68,7 +68,7 @@ void View::setUpLeftLayout()
     scrollWidget = new QWidget(this);
     dataArea = new QGridLayout(scrollWidget);
 //    for(int i = 0; i < 15; i++){
-//        dataArea->addWidget(new QLineEdit(scrollWidget),i,i);
+//        dataArea->addWidget(new TextBox(scrollWidget),i,i);
 //    }
 
     dataArea->setSpacing(0);   //sets space between cells    
@@ -79,7 +79,7 @@ void View::setUpLeftLayout()
 
     dataAreaScroll = new QScrollArea(this);
     dataAreaScroll->setWidget(scrollWidget);
-    //dataAreaScroll->setMinimumHeight(500);
+    dataAreaScroll->setMinimumHeight(500);
     dataAreaScroll->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
     leftButtons = new QHBoxLayout();
@@ -109,25 +109,35 @@ void View::linkButtons()
     connect(deleteColumnButton, SIGNAL(clicked()), controller, SLOT(deleteColumn()));
 }
 
+void View::addFirstCell()
+{
+    TextBox* tmp = new TextBox(0,0,scrollWidget);
+    tmp->setObjectName("0,0");
+    dataArea->addWidget(tmp,0,0);
+    textBoxMatrix.append(QVector<TextBox*>(1, tmp)); //adds new QVector<TextBox*> with tmp
+}
+
 void View::addRow()
 {
     unsigned int size = controller->getDataMatrixWidth();
     if (size != 0){
+        if(size==1 && controller->getDataMatrixHeigth()==1) textBoxMatrix.append(QVector<TextBox*>());      //array is empty so I initialize it with a new internal array
         for(unsigned int x = 0; x < size; x++){
             int y = controller->getDataMatrixHeigth() - 1;         
-            QLineEdit* tmp = new QLineEdit(scrollWidget);
+            TextBox* tmp = new TextBox(x,y,scrollWidget);
             tmp->setObjectName(QString::number(x) + "," + QString::number(y));
-            dataArea->addWidget(tmp, y, x);
+            dataArea->addWidget(tmp, y, x);            
+            textBoxMatrix[x].append(tmp);
         }
     }
     else{
-        QLineEdit* tmp = new QLineEdit(scrollWidget);
-        tmp->setObjectName("0,0");
-        dataArea->addWidget(tmp,6,6);
+        addFirstCell();
     }
-    //LOG
-    QTextStream(stdout) << "View rows: " + QString::number(dataArea->rowCount()) << endl;
-    QTextStream(stdout) << "View columns: " + QString::number(dataArea->columnCount())<< endl;
+
+    QTextStream(stdout) << "View rows: " + QString::number(dataArea->rowCount()) << endl;       //LOG
+    QTextStream(stdout) << "View columns: " + QString::number(dataArea->columnCount()) << endl;  //LOG
+    QTextStream(stdout) << "TextBoxMatrix rows: " + QString::number(textBoxMatrix[0].size()) << endl;       //LOG
+    QTextStream(stdout) << "TextBoxMatrix columns: " + QString::number(textBoxMatrix.size()) << endl << endl;  //LOG
 }
 void View::deleteRow()
 {
@@ -137,22 +147,24 @@ void View::addColumn()
 {
     unsigned int size = controller->getDataMatrixHeigth();
     if (size != 0){
+        QVector<TextBox*> tmpArray = QVector<TextBox*>();
+        textBoxMatrix.append(tmpArray); //adds new QVector<TextBox*>
         for(unsigned int y = 0; y < size; y++){
             int x = controller->getDataMatrixWidth() - 1;
-            QLineEdit* tmp = new QLineEdit(scrollWidget);
+            TextBox* tmp = new TextBox(x,y,scrollWidget);
             tmp->setObjectName(QString::number(x) + "," + QString::number(y));
             dataArea->addWidget(tmp, y, x);
-
+            tmpArray.append(tmp);
         }
     }
     else{
-        QLineEdit* tmp = new QLineEdit(scrollWidget);
-        tmp->setObjectName("0,0");
-        dataArea->addWidget(tmp,6,6);
+        addFirstCell();
     }
 
     QTextStream(stdout) << "View rows: " + QString::number(dataArea->rowCount()) << endl;       //LOG
-    QTextStream(stdout) << "View columns: " + QString::number(dataArea->columnCount())<< endl << endl;  //LOG
+    QTextStream(stdout) << "View columns: " + QString::number(dataArea->columnCount()) << endl;  //LOG
+    QTextStream(stdout) << "TextBoxMatrix rows: " + QString::number(textBoxMatrix[0].size()) << endl;       //LOG
+    QTextStream(stdout) << "TextBoxMatrix columns: " + QString::number(textBoxMatrix.size()) << endl << endl;  //LOG
 }
 
 void View::deleteColumn()
