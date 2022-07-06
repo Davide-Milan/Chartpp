@@ -1,13 +1,12 @@
 #include "model.h"
 
-Model::Model() : data(nullptr)
+Model::Model() : matrix(new Matrix)
 {
-
 }
 
 void Model::addRowData()
 {
-
+    matrix->addRowMatrix();
 }
 
 void Model::deleteRowData()
@@ -17,7 +16,7 @@ void Model::deleteRowData()
 
 void Model::addColumnData()
 {
-
+    matrix->addColumnMatrix();
 }
 
 void Model::deleteColumnData()
@@ -26,14 +25,14 @@ void Model::deleteColumnData()
 }
 
 unsigned int Model::getDataMatrixWidth() const {
-    if(data!=nullptr)
+    if(matrix!=nullptr)
         //QTextStream(stdout) << "aaaaaaa" << endl; //LOG
-        return data->getDataMatrixWidth();
+        return matrix->getDataMatrixWidth();
     return 0;
 }
 unsigned int Model::getDataMatrixHeigth() const {
-    if(data!=nullptr)
+    if(matrix!=nullptr)
         //QTextStream(stdout) << "aaaaaaa" << endl; //LOG
-        return data->getDataMatrixHeigth();
+        return matrix->getDataMatrixHeigth();
     return 0;
 }

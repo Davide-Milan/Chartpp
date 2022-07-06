@@ -16,6 +16,7 @@ SOURCES += \
     matrix.cpp \
     model.cpp \
     numericData.cpp \
+    textBox.cpp \
     textData.cpp \
     view.cpp
 
@@ -25,6 +26,7 @@ HEADERS += \
     matrix.h \
     model.h \
     numericData.h \
+    textBox.h \
     textData.h \
     view.h
 

@@ -37,3 +37,7 @@ void Controller::deleteColumn()
     model->deleteColumnData();
     view->deleteColumn();
 }
+
+void Controller::updateValue()
+{
+}

@@ -6,7 +6,7 @@
 class Model
 {
 private:
-    Matrix* data;
+    Matrix* matrix;
 public:
     Model();
 

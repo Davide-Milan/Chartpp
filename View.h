@@ -71,5 +71,8 @@ public:
     void deleteRow();
     void addColumn();
     void deleteColumn();
+
+signals:
+    void senderPosition(unsigned int, unsigned int);
 };
 #endif // VIEW_H

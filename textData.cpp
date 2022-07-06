@@ -4,3 +4,9 @@ TextData::TextData()
 {
 
 }
+
+
+TextData::~TextData()
+{
+
+}

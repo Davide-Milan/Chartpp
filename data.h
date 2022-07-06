@@ -8,7 +8,7 @@ class Data
 {
 public:
     Data();
-    virtual ~Data() =0;
+    virtual ~Data();
 };
 
 #endif // DATA_H

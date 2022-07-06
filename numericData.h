@@ -9,6 +9,7 @@ private:
     double value;
 public:
     NumericData();
+    ~NumericData() override;
 };
 
 #endif // NUMERICDATA_H

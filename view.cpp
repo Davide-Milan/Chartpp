@@ -67,16 +67,21 @@ void View::setUpLeftLayout()
     //create layouts + basic styling
     scrollWidget = new QWidget(this);
     dataArea = new QGridLayout(scrollWidget);
-    for(int i = 0; i < 5; i++){
-        dataArea->addWidget(new QLineEdit(scrollWidget),i,i);
-    }
+//    for(int i = 0; i < 15; i++){
+//        dataArea->addWidget(new QLineEdit(scrollWidget),i,i);
+//    }
 
-    dataArea->setSpacing(0);   //sets space between cells
+    dataArea->setSpacing(0);   //sets space between cells    
+    dataArea->setSizeConstraint(QLayout::SetMinAndMaxSize);
+
     scrollWidget->setLayout(dataArea);
+    scrollWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+
     dataAreaScroll = new QScrollArea(this);
     dataAreaScroll->setWidget(scrollWidget);
-    dataAreaScroll->setMinimumHeight(500);
+    //dataAreaScroll->setMinimumHeight(500);
     dataAreaScroll->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+
     leftButtons = new QHBoxLayout();
     leftArea = new QVBoxLayout();
     leftArea->setContentsMargins(0,0,0,0);
@@ -108,22 +113,21 @@ void View::addRow()
 {
     unsigned int size = controller->getDataMatrixWidth();
     if (size != 0){
-        QTextStream(stdout) << "iffffffffff" << endl;
-        for(unsigned int x = 0; x <= size; x++){
-            int y = controller->getDataMatrixHeigth() - 1;
+        for(unsigned int x = 0; x < size; x++){
+            int y = controller->getDataMatrixHeigth() - 1;         
             QLineEdit* tmp = new QLineEdit(scrollWidget);
-            tmp->setObjectName(QString::number(x).append(",").append(QString::number(y)));
+            tmp->setObjectName(QString::number(x) + "," + QString::number(y));
             dataArea->addWidget(tmp, y, x);
         }
     }
     else{
-        QTextStream(stdout) << "elseeeee" << endl;
         QLineEdit* tmp = new QLineEdit(scrollWidget);
         tmp->setObjectName("0,0");
-        QTextStream(stdout) << QString::number(dataArea->count()) << endl;
         dataArea->addWidget(tmp,6,6);
-        QTextStream(stdout) << QString::number(dataArea->count()) << endl;
     }
+    //LOG
+    QTextStream(stdout) << "View rows: " + QString::number(dataArea->rowCount()) << endl;
+    QTextStream(stdout) << "View columns: " + QString::number(dataArea->columnCount())<< endl;
 }
 void View::deleteRow()
 {
@@ -131,8 +135,26 @@ void View::deleteRow()
 }
 void View::addColumn()
 {
+    unsigned int size = controller->getDataMatrixHeigth();
+    if (size != 0){
+        for(unsigned int y = 0; y < size; y++){
+            int x = controller->getDataMatrixWidth() - 1;
+            QLineEdit* tmp = new QLineEdit(scrollWidget);
+            tmp->setObjectName(QString::number(x) + "," + QString::number(y));
+            dataArea->addWidget(tmp, y, x);
 
+        }
+    }
+    else{
+        QLineEdit* tmp = new QLineEdit(scrollWidget);
+        tmp->setObjectName("0,0");
+        dataArea->addWidget(tmp,6,6);
+    }
+
+    QTextStream(stdout) << "View rows: " + QString::number(dataArea->rowCount()) << endl;       //LOG
+    QTextStream(stdout) << "View columns: " + QString::number(dataArea->columnCount())<< endl << endl;  //LOG
 }
+
 void View::deleteColumn()
 {
 

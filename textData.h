@@ -10,6 +10,7 @@ private:
     QString value;
 public:
     TextData();
+    ~TextData() override;
 };
 
 #endif // TEXTDATA_H

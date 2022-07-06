@@ -4,3 +4,8 @@ NumericData::NumericData()
 {
 
 }
+
+NumericData::~NumericData()
+{
+
+}

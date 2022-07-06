@@ -26,6 +26,8 @@ public slots:
     void deleteRow();
     void addColumn();
     void deleteColumn();
+
+    void updateValue();
 };
 
 #endif // CONTROLLER_H
