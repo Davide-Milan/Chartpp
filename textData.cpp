@@ -1,6 +1,6 @@
 #include "textData.h"
 
-TextData::TextData()
+TextData::TextData() : value("aaaaa")
 {
 
 }
@@ -8,5 +8,10 @@ TextData::TextData()
 
 TextData::~TextData()
 {
-
+//QTextStream(stdout) << "~TEXTDATA";
 }
+
+void TextData::setData(QString text){value = text;}
+
+QString TextData::getData() {return value;}
+

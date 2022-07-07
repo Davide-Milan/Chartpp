@@ -11,11 +11,13 @@ public:
     Model();
 
     void addRowData();
-    void deleteRowData();
-    void addColumnData();
-    void deleteColumnData();
+    void deleteRowData(unsigned int);
+    void addColumnData(bool);
+    void deleteColumnData(unsigned int);
     unsigned int getDataMatrixWidth() const;
     unsigned int getDataMatrixHeigth() const;
+
+    void updateDataMatrixValue(QString, unsigned int, unsigned int);
 };
 
 #endif // MODEL_H

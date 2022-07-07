@@ -7,4 +7,5 @@ Data::Data()
 
 Data::~Data()
 {
+    //QTextStream(stdout) << "~DATA";
 }

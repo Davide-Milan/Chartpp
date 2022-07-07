@@ -10,6 +10,8 @@ private:
 public:
     NumericData();
     ~NumericData() override;
+    void setData(QString) override;
+    double getData(bool = false) override;
 };
 
 #endif // NUMERICDATA_H

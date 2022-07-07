@@ -2,7 +2,6 @@
 
 Matrix::Matrix()
 {
-    //dataMatrix.push_back(new QVector<Data*>);
 }
 
 unsigned int Matrix::getDataMatrixWidth() const {
@@ -16,27 +15,48 @@ unsigned int Matrix::getDataMatrixHeigth() const {
 }
 
 void Matrix::addRowMatrix(){
-
-    if(dataMatrix.isEmpty())
-        dataMatrix.append(new QVector<Data*>(1, new Data)); //adds new QVector<Data*> with 1 default Data
-    else{
-        for(int i = 0; i < dataMatrix.size(); i++){
-            dataMatrix[i]->resize(dataMatrix[i]->size() + 1);   //adds one default item to every QVector inside of QVector (to every column of the matrix)
-        }
+    for(int i = 0; i < dataMatrix.size(); i++){
+        if(dynamic_cast<TextData*>(dataMatrix[i]->at(0)))
+            dataMatrix[i]->append(new TextData);
+        else
+            dataMatrix[i]->append(new NumericData);
     }
-
-    QTextStream(stdout) << "Matrix heigth: " + QString::number(dataMatrix[0]->size())<<endl; //LOG
-    QTextStream(stdout) << "Matrix width: " + QString::number(dataMatrix.size())<<endl;      //LOG
 }
 
-void Matrix::addColumnMatrix(){
-    //dataMatrix.resize(dataMatrix.size() + 1);
-    if(dataMatrix.isEmpty())
-        dataMatrix.append(new QVector<Data*>(1, new Data)); //adds new QVector<Data*> with 1 default Data
-    else{
-        dataMatrix.append(new QVector<Data*>(dataMatrix[0]->size(), new Data)); //adds new QVector<Data*> with default Datas, as many as matrix heigth
+void Matrix::addColumnMatrix(bool numeric)
+{
+    if(numeric){
+        if(dataMatrix.isEmpty())
+            dataMatrix.append(new QVector<Data*>(1, new NumericData)); //adds new QVector<Data*> with 1 default Data
+        else{
+            dataMatrix.append(new QVector<Data*>(dataMatrix[0]->size(), new NumericData)); //adds new QVector<Data*> with default Datas, as many as matrix heigth
+        }
     }
+    else{
+        if(dataMatrix.isEmpty())
+            dataMatrix.append(new QVector<Data*>(1, new TextData)); //adds new QVector<Data*> with 1 default Data
+        else{
+            dataMatrix.append(new QVector<Data*>(dataMatrix[0]->size(), new TextData)); //adds new QVector<Data*> with default Datas, as many as matrix heigth
+        }
+    }
+}
 
-    QTextStream(stdout) << "Matrix heigth: " + QString::number(dataMatrix[0]->size())<<endl;    //LOG
-    QTextStream(stdout) << "Matrix width: " + QString::number(dataMatrix.size())<<endl;         //LOG
+void Matrix::deleteRowMatrix(unsigned int row)
+{
+    for(unsigned int x = 0; x < getDataMatrixWidth(); x++){
+        Data* tmp = dataMatrix[x]->at(row);
+        dataMatrix[x]->erase();
+        delete tmp; //qua crasha
+    }
+}
+
+void Matrix::deleteColumnMatrix(unsigned int col){
+    QVector<Data*>* tmp = dataMatrix[col];
+    dataMatrix.removeAt(col);
+    delete tmp;
+}
+
+void Matrix::updateDataMatrixValue(QString text, unsigned int x, unsigned int y)
+{
+    dataMatrix[x]->at(y)->setData(text);
 }

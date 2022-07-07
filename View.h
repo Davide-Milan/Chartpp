@@ -38,7 +38,7 @@ class View : public QWidget
     Q_OBJECT
 
 private:
-    QVector<QVector<TextBox*>> textBoxMatrix;
+    QVector<QVector<TextBox*>*> textBoxMatrix;
     QMenuBar* menuBar;
     QMenu* file;
     QMenu* edit;
@@ -65,18 +65,20 @@ private:
     void addMenus();
     void setUpLeftLayout();
     void linkButtons();
+    void connectNewTextBox(TextBox* tmp);
+
 public:
     View(QWidget *parent = nullptr);
     ~View();
     void setController(Controller *);
 
     void addRow();
-    void deleteRow();
+    void deleteRow(unsigned int);
     void addColumn();
-    void deleteColumn();
+    void deleteColumn(unsigned int);
 
     void addFirstCell();
-
+    QString showSelectNewColumnType();
 signals:
     void senderPosition(unsigned int, unsigned int);
 };

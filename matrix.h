@@ -10,13 +10,16 @@
 class Matrix
 {
 private:
-    QVector<QVector<Data*>*> dataMatrix;
+    QVector<QVector<Data*> *> dataMatrix;
 public:
     Matrix();
     unsigned int getDataMatrixWidth() const;
     unsigned int getDataMatrixHeigth() const;
     void addRowMatrix();
-    void addColumnMatrix();
+    void deleteRowMatrix(unsigned int);
+    void addColumnMatrix(bool);
+    void deleteColumnMatrix(unsigned int);
+    void updateDataMatrixValue(QString, unsigned int, unsigned int);
 };
 
 #endif // MATRIX_H

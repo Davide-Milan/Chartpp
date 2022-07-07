@@ -109,65 +109,118 @@ void View::linkButtons()
     connect(deleteColumnButton, SIGNAL(clicked()), controller, SLOT(deleteColumn()));
 }
 
+void View::connectNewTextBox(TextBox* tmp)
+{
+    connect(tmp, SIGNAL(updateValue(QString, unsigned int, unsigned int)), controller, SLOT(updateValue(QString, unsigned int, unsigned int)));
+    connect(tmp, SIGNAL(test(QPair<unsigned int, unsigned int>)), controller, SLOT(test(QPair<unsigned int, unsigned int>)));
+}
+
 void View::addFirstCell()
 {
     TextBox* tmp = new TextBox(0,0,scrollWidget);
     tmp->setObjectName("0,0");
+    connectNewTextBox(tmp);
     dataArea->addWidget(tmp,0,0);
-    textBoxMatrix.append(QVector<TextBox*>(1, tmp)); //adds new QVector<TextBox*> with tmp
+    textBoxMatrix.append(new QVector<TextBox*>(1, tmp)); //adds new QVector<TextBox*> with tmp
+}
+
+QString View::showSelectNewColumnType()
+{
+    QStringList items;
+    items << tr("Numeric") << tr("Text");
+
+    bool ok;
+    QString item = QInputDialog::getItem(this, tr("QInputDialog::getItem()"),
+                                         tr("Select type of data for new column:"), items, 0, false, &ok);
+    if(ok)
+        return item;
+    return "";
 }
 
 void View::addRow()
 {
     unsigned int size = controller->getDataMatrixWidth();
-    if (size != 0){
-        if(size==1 && controller->getDataMatrixHeigth()==1) textBoxMatrix.append(QVector<TextBox*>());      //array is empty so I initialize it with a new internal array
+    if (size > 0){
+        if(size==1 && controller->getDataMatrixHeigth()==1) textBoxMatrix.append(new QVector<TextBox*>());      //array is empty so I initialize it with a new internal array
         for(unsigned int x = 0; x < size; x++){
             int y = controller->getDataMatrixHeigth() - 1;         
             TextBox* tmp = new TextBox(x,y,scrollWidget);
             tmp->setObjectName(QString::number(x) + "," + QString::number(y));
+            connectNewTextBox(tmp);
             dataArea->addWidget(tmp, y, x);            
-            textBoxMatrix[x].append(tmp);
+            textBoxMatrix[x]->append(tmp);
         }
     }
     else{
         addFirstCell();
     }
-
-    QTextStream(stdout) << "View rows: " + QString::number(dataArea->rowCount()) << endl;       //LOG
-    QTextStream(stdout) << "View columns: " + QString::number(dataArea->columnCount()) << endl;  //LOG
-    QTextStream(stdout) << "TextBoxMatrix rows: " + QString::number(textBoxMatrix[0].size()) << endl;       //LOG
-    QTextStream(stdout) << "TextBoxMatrix columns: " + QString::number(textBoxMatrix.size()) << endl << endl;  //LOG
 }
-void View::deleteRow()
+
+void View::deleteRow(unsigned int row)
 {
-
+    unsigned int size = controller->getDataMatrixWidth();
+    if (size > 0){
+        for(unsigned int x = 0; x < size; x++){
+            TextBox* tmp= textBoxMatrix[x]->at(row);
+            textBoxMatrix[x]->remove(row);
+            delete tmp;
+        }
+        if(textBoxMatrix[0]->size()>0){
+            for(unsigned int y = row; y < controller->getDataMatrixHeigth()-1; y++){
+                for(unsigned int x = 0; x < controller->getDataMatrixWidth(); x++)
+                    textBoxMatrix[x]->at(y)->decreaseY();
+            }
+        }
+        else{
+            for(int x = 0; x < controller->getDataMatrixWidth(); x++){
+                QVector<TextBox*>* tmp = textBoxMatrix[x];
+                textBoxMatrix.remove(x);
+                delete tmp;
+            }
+        }
+        QTextStream(stdout) << "TextBoxMatrix width: " + QString::number(textBoxMatrix.size()) << endl;
+        QTextStream(stdout) << "TextBoxMatrix heigth: " + QString::number(textBoxMatrix[0]->size()) << endl;
+    }
+    else return;
 }
+
 void View::addColumn()
 {
     unsigned int size = controller->getDataMatrixHeigth();
-    if (size != 0){
-        QVector<TextBox*> tmpArray = QVector<TextBox*>();
+    if (size > 0){
+        QVector<TextBox*>* tmpArray = new QVector<TextBox*>();
         textBoxMatrix.append(tmpArray); //adds new QVector<TextBox*>
         for(unsigned int y = 0; y < size; y++){
             int x = controller->getDataMatrixWidth() - 1;
             TextBox* tmp = new TextBox(x,y,scrollWidget);
             tmp->setObjectName(QString::number(x) + "," + QString::number(y));
+            connectNewTextBox(tmp);
             dataArea->addWidget(tmp, y, x);
-            tmpArray.append(tmp);
+            tmpArray->append(tmp);
         }
     }
     else{
         addFirstCell();
     }
-
-    QTextStream(stdout) << "View rows: " + QString::number(dataArea->rowCount()) << endl;       //LOG
-    QTextStream(stdout) << "View columns: " + QString::number(dataArea->columnCount()) << endl;  //LOG
-    QTextStream(stdout) << "TextBoxMatrix rows: " + QString::number(textBoxMatrix[0].size()) << endl;       //LOG
-    QTextStream(stdout) << "TextBoxMatrix columns: " + QString::number(textBoxMatrix.size()) << endl << endl;  //LOG
 }
 
-void View::deleteColumn()
+void View::deleteColumn(unsigned int col)
 {
+    unsigned int size = controller->getDataMatrixHeigth();
+    if (size > 0){
+        for(unsigned int y = 0; y < size; y++){
+            delete textBoxMatrix[col]->at(y);
+        }
+        QVector<TextBox*>* tmp= textBoxMatrix[col];
+        textBoxMatrix.remove(col);
+        delete tmp;
 
+        if(textBoxMatrix.size()>0){
+            for(unsigned int x = col; x < controller->getDataMatrixWidth()-1; x++){
+                for(unsigned int y = 0; y < controller->getDataMatrixHeigth(); y++)
+                    textBoxMatrix[x]->at(y)->decreaseX();
+            }
+        }
+    }
+    else return;
 }

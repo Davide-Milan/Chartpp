@@ -1,7 +1,6 @@
 #ifndef TEXTDATA_H
 #define TEXTDATA_H
 
-#include <QString>
 #include "data.h"
 
 class TextData : public Data
@@ -11,6 +10,9 @@ private:
 public:
     TextData();
     ~TextData() override;
+    void setData(QString) override;
+    QString
+    getData() override;
 };
 
 #endif // TEXTDATA_H

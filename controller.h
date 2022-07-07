@@ -27,7 +27,8 @@ public slots:
     void addColumn();
     void deleteColumn();
 
-    void updateValue();
+    void test(QPair<unsigned int, unsigned int> value){QTextStream(stdout) << QString::number(value.first) << QString::number(value.second) << endl;}
+    void updateValue(QString, unsigned int, unsigned int);
 };
 
 #endif // CONTROLLER_H
