@@ -2,20 +2,16 @@
 #define DATA_H
 
 #include <QString>
-#include <QTextStream>
 
 //classe base astratta (pura(?))
 
-template<class T>
+
 class Data
-{
-private:
-    T value;
+{ 
 public:
     Data();
-//    ~Data();
-    void setData(T);
-    T getData();
+    virtual ~Data() = 0;
+    virtual void setData(QString) = 0;
 };
 
 #endif // DATA_H

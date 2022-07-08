@@ -1,18 +1,12 @@
 #include "data.h"
 
-template<class T>
-Data<T>::Data()
+
+Data::Data()
 {
 
 }
-template<class T>
-Data<T>::~Data()
+
+Data::~Data()
 {
-    //QTextStream(stdout) << "~DATA";
+    //qDebug() << "~DATA";
 }
-
-template<class T>
-void Data<T>::setData(T _value) {value = _value;}
-
-template<class T>
-T Data<T>::getData() {return value;}

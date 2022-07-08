@@ -26,9 +26,18 @@ void TextBox::focusInEvent(QFocusEvent *event)
     QLineEdit::focusInEvent(event);
     lastSelectedTextBox = {x,y};
     somethingWasSelected = true;
+    setStyleSheet("QLineEdit { background: rgb(32, 191, 227 / .4); }");
     emit test(lastSelectedTextBox);
 }
 
+void TextBox::focusOutEvent(QFocusEvent *event)
+{
+    QLineEdit::focusOutEvent(event);
+    lastSelectedTextBox = {x,y};
+    somethingWasSelected = true;
+    emit test(lastSelectedTextBox);
+    setStyleSheet("QLineEdit { background: rgb(255, 255, 255); }");
+}
 
 
 //STATIC FIELDS AND FUNCTIONS

@@ -4,6 +4,7 @@
 #include <QWidget>
 
 #include "textBox.h"
+#include "matrix.h"
 
 #include <QHBoxLayout>
 #include <QVBoxLayout>
@@ -38,7 +39,7 @@ class View : public QWidget
     Q_OBJECT
 
 private:
-    QVector<QVector<TextBox*>*> textBoxMatrix;
+    QVector<QVector<TextBox*>*>* textBoxMatrix;
     QMenuBar* menuBar;
     QMenu* file;
     QMenu* edit;
@@ -82,6 +83,10 @@ public:
     void shiftRowsOnDelete(unsigned int, unsigned int);
     void shiftColumnsOnDelete(unsigned int);
     QString showSaveFile();
+    QString showLoadFile();
+    void loadData(const Matrix* dataMatrix);
+    void clean();
+    int showConfirmClear();
 signals:
     void senderPosition(unsigned int, unsigned int);
 };

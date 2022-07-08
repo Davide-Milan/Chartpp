@@ -2,7 +2,7 @@
 #include "controller.h"
 
 View::View(QWidget *parent)
-    : QWidget(parent)
+    : QWidget(parent), textBoxMatrix(new QVector<QVector<TextBox*>*>)
 {  
     mainLayout = new QHBoxLayout(this);
 
@@ -42,22 +42,24 @@ void View::addMenus()
     menuBar->addMenu(edit);
     menuBar->addMenu(view);
 
-    file->addAction(new QAction("Open", file));
-    file->addAction(new QAction("Save", file));
+    file->addAction(new QAction("New file", file));
+    file->addAction(new QAction("Open file", file));
+    file->addAction(new QAction("Export", file));
     file->addAction(new QAction("Close", file));
-    edit->addAction(new QAction("Undo", edit));
-    edit->addAction(new QAction("Redo", edit));
+    edit->addAction(new QAction("Clear all", edit));
+//    edit->addAction(new QAction("Undo", edit));
+//    edit->addAction(new QAction("Redo", edit));
     view->addAction(new QAction("Zoom in", view));
     view->addAction(new QAction("Zoom out", view));
 
     menuBar->resize(4000,20);       //makes it as large as possible
-    menuBar->connect(file->actions()[2], SIGNAL(triggered()), this, SLOT(close()));
+    menuBar->connect(file->actions()[3], SIGNAL(triggered()), this, SLOT(close()));
 }
 
 void View::setUpLeftLayout()
 {
     //create buttons
-    loadDataButton = new QPushButton("Load file", this);
+    loadDataButton = new QPushButton("Open file", this);
     saveDataButton = new QPushButton("Export", this);
     addRowButton = new QPushButton("Add row", this);
     deleteRowButton = new QPushButton("Delete row", this);
@@ -103,11 +105,17 @@ void View::setUpLeftLayout()
 
 void View::linkButtons()
 {
+    connect(loadDataButton, SIGNAL(clicked()), controller, SLOT(loadDataFromFile()));
     connect(saveDataButton, SIGNAL(clicked()), controller, SLOT(saveToFile()));
     connect(addRowButton, SIGNAL(clicked()), controller, SLOT(addRow()));
     connect(addColumnButton, SIGNAL(clicked()), controller, SLOT(addColumn()));
     connect(deleteRowButton, SIGNAL(clicked()), controller, SLOT(deleteRow()));
     connect(deleteColumnButton, SIGNAL(clicked()), controller, SLOT(deleteColumn()));
+
+    menuBar->connect(file->actions()[0], SIGNAL(triggered()), controller, SLOT(newFile()));
+    menuBar->connect(file->actions()[1], SIGNAL(triggered()), controller, SLOT(loadDataFromFile()));
+    menuBar->connect(file->actions()[2], SIGNAL(triggered()), controller, SLOT(saveToFile()));
+    menuBar->connect(edit->actions()[0], SIGNAL(triggered()), controller, SLOT(clearData()));
 }
 
 void View::connectNewTextBox(TextBox* tmp)
@@ -122,7 +130,7 @@ void View::addFirstCell()
     tmp->setObjectName("0,0");
     connectNewTextBox(tmp);
     dataArea->addWidget(tmp,0,0);
-    textBoxMatrix.append(new QVector<TextBox*>(1, tmp)); //adds new QVector<TextBox*> with tmp
+    textBoxMatrix->append(new QVector<TextBox*>(1, tmp)); //adds new QVector<TextBox*> with tmp
 }
 
 QString View::showSelectNewColumnType()
@@ -131,7 +139,7 @@ QString View::showSelectNewColumnType()
     items << tr("Numeric") << tr("Text");
 
     bool ok;
-    QString item = QInputDialog::getItem(this, tr("QInputDialog::getItem()"),
+    QString item = QInputDialog::getItem(this, tr("Add column"),
                                          tr("Select type of data for new column:"), items, 0, false, &ok);
     if(ok)
         return item;
@@ -142,14 +150,14 @@ void View::addRow()
 {
     unsigned int size = controller->getDataMatrixWidth();
     if (size > 0){
-        if(size==1 && controller->getDataMatrixHeigth()==1) textBoxMatrix.append(new QVector<TextBox*>());      //array is empty so I initialize it with a new internal array
+        if(size==1 && controller->getDataMatrixHeigth()==1) textBoxMatrix->append(new QVector<TextBox*>());      //array is empty so I initialize it with a new internal array
         for(unsigned int x = 0; x < size; x++){
             int y = controller->getDataMatrixHeigth() - 1;         
             TextBox* tmp = new TextBox(x,y,scrollWidget);
             tmp->setObjectName(QString::number(x) + "," + QString::number(y));
             connectNewTextBox(tmp);
             dataArea->addWidget(tmp, y, x);            
-            textBoxMatrix[x]->append(tmp);
+            textBoxMatrix->at(x)->append(tmp);
         }
     }
     else{
@@ -162,30 +170,30 @@ void View::deleteRow(unsigned int row)
     unsigned int size = controller->getDataMatrixWidth();
     if (size > 0){
         for(unsigned int x = 0; x < size; x++){
-            TextBox* tmp= textBoxMatrix[x]->at(row);
-            dataArea->removeWidget(textBoxMatrix[x]->at(row));
-            textBoxMatrix[x]->erase(textBoxMatrix[x]->begin() + row);
+            TextBox* tmp= textBoxMatrix->at(x)->at(row);
+            dataArea->removeWidget(textBoxMatrix->at(x)->at(row));
+            textBoxMatrix->at(x)->erase(textBoxMatrix->at(x)->begin() + row);
             delete tmp;
 //            if(row < controller->getDataMatrixHeigth()-1)
 //                controller->shiftRowsOnDelete(x,row);
         }
-        if(textBoxMatrix[0]->size()>0){
+        if(textBoxMatrix->at(0)->size()>0){
             for(unsigned int y = row; y < controller->getDataMatrixHeigth()-1; y++){
                 for(unsigned int x = 0; x < controller->getDataMatrixWidth(); x++){
-                    textBoxMatrix[x]->at(y)->decreaseY();
-                    textBoxMatrix[x]->at(y)->setObjectName(QString::number(x) + "," + QString::number(y));
+                    textBoxMatrix->at(x)->at(y)->decreaseY();
+                    textBoxMatrix->at(x)->at(y)->setObjectName(QString::number(x) + "," + QString::number(y));
                 }
             }
         }
         else{
             for(int x = 0; x < controller->getDataMatrixWidth(); x++){
-                QVector<TextBox*>* tmp = textBoxMatrix[x];
-                textBoxMatrix.remove(x);
+                QVector<TextBox*>* tmp = textBoxMatrix->at(x);
+                textBoxMatrix->remove(x);
                 delete tmp;
             }
         }
-        QTextStream(stdout) << "TextBoxMatrix width: " + QString::number(textBoxMatrix.size()) << endl;
-        QTextStream(stdout) << "TextBoxMatrix heigth: " + QString::number(textBoxMatrix[0]->size()) << endl;
+        qDebug() << "TextBoxMatrix width: " + QString::number(textBoxMatrix->size()) << endl;
+        qDebug() << "TextBoxMatrix heigth: " + QString::number(textBoxMatrix->at(0)->size()) << endl;
     }
     else return;
 }
@@ -195,7 +203,7 @@ void View::addColumn()
     unsigned int size = controller->getDataMatrixHeigth();
     if (size > 0){
         QVector<TextBox*>* tmpArray = new QVector<TextBox*>();
-        textBoxMatrix.append(tmpArray); //adds new QVector<TextBox*>
+        textBoxMatrix->append(tmpArray); //adds new QVector<TextBox*>
         for(unsigned int y = 0; y < size; y++){
             int x = controller->getDataMatrixWidth() - 1;
             TextBox* tmp = new TextBox(x,y,scrollWidget);
@@ -215,20 +223,20 @@ void View::deleteColumn(unsigned int col)
     unsigned int size = controller->getDataMatrixHeigth();
     if (size > 0){
         for(unsigned int y = 0; y < size; y++){
-            dataArea->removeWidget(textBoxMatrix[col]->at(y));
-            delete textBoxMatrix[col]->at(y);            
+            dataArea->removeWidget(textBoxMatrix->at(col)->at(y));
+            delete textBoxMatrix->at(col)->at(y);
         }
-        QVector<TextBox*>* tmp= textBoxMatrix[col];
-        textBoxMatrix.erase(textBoxMatrix.begin() + col);
+        QVector<TextBox*>* tmp= textBoxMatrix->at(col);
+        textBoxMatrix->erase(textBoxMatrix->begin() + col);
         delete tmp;
 //        if(col < controller->getDataMatrixWidth()-1)
 //            controller->shiftColumnsOnDelete(col);
 
-        if(textBoxMatrix.size()>0){
+        if(textBoxMatrix->size()>0){
             for(unsigned int x = col; x < controller->getDataMatrixWidth()-1; x++){
                 for(unsigned int y = 0; y < controller->getDataMatrixHeigth(); y++){
-                    textBoxMatrix[x]->at(y)->decreaseX();
-                    textBoxMatrix[x]->at(y)->setObjectName(QString::number(x) + "," + QString::number(y));
+                    textBoxMatrix->at(x)->at(y)->decreaseX();
+                    textBoxMatrix->at(x)->at(y)->setObjectName(QString::number(x) + "," + QString::number(y));
                 }
             }
         }
@@ -245,10 +253,10 @@ void View::shiftRowsOnDelete(unsigned int x, unsigned int row)
 void View::shiftColumnsOnDelete(unsigned int col)
 {
 //    for(unsigned int _col = col; _col < controller->getDataMatrixWidth()-1; _col++){
-//        QTextStream(stdout) << QString::number(_col);
-//        textBoxMatrix[_col] = new QVector<TextBox*>/*textBoxMatrix[col+1]*/;
+//        qDebug() << QString::number(_col);
+//        textBoxMatrix->at(_col) = new QVector<TextBox*>/*textBoxMatrix->at(col+1)*/;
 //    }
-    //textBoxMatrix.remove(col);
+    //textBoxMatrix->remove(col);
 }
 
 QString View::showSaveFile()
@@ -264,4 +272,66 @@ QString View::showSaveFile()
     if (!fileName.endsWith(".json"))
         fileName += ".json";
     return fileName;
+}
+
+QString View::showLoadFile()
+{
+    QFileDialog loadDialog(this);
+    QString fileName = loadDialog.getOpenFileName(
+        this,
+        tr("Load data from a json file"), "",
+        tr(".json (*.json)")
+    );
+    if (fileName == "")
+       throw std::runtime_error("Nessun file selezionato: operazione annullata.");
+    if (!fileName.endsWith(".json"))
+        fileName += ".json";
+    return fileName;
+}
+
+void View::loadData(const Matrix* dataMatrix)   //called after clean, thus no need for checks on textBoxMatrix content
+{
+    for(int x=0; x < controller->getDataMatrixWidth(); x++){
+        QVector<TextBox*>* tmpColumn = new QVector<TextBox*>;
+        textBoxMatrix->append(tmpColumn);
+        if(dynamic_cast<NumericData*>(dataMatrix->getDataAt(x))){
+            for(int y=0; y < controller->getDataMatrixHeigth(); y++){
+                TextBox* tmp = new TextBox(x, y, scrollWidget, QString::number(static_cast<NumericData*>(dataMatrix->getDataAt(x,y))->getData())); //static cast is safe because of the previous dynamic cast
+                connectNewTextBox(tmp);
+                dataArea->addWidget(tmp, y, x);
+                tmpColumn->append(tmp);
+            }
+        }
+        else{
+            for(int y=0; y < controller->getDataMatrixHeigth(); y++){
+                TextBox* tmp = new TextBox(x, y, scrollWidget, static_cast<TextData*>(dataMatrix->getDataAt(x,y))->getData()); //static cast is safe because of the previous dynamic cast
+                connectNewTextBox(tmp);
+                dataArea->addWidget(tmp, y, x);
+                tmpColumn->append(tmp);
+            }
+        }
+    }
+}
+
+void View::clean()
+{
+    for(int x = 0; x < controller->getDataMatrixWidth(); x++){
+        for(int y=0; y < controller->getDataMatrixHeigth(); y++){
+            delete textBoxMatrix->at(x)->at(y);
+        }
+        textBoxMatrix->at(x)->clear();
+        delete textBoxMatrix->at(x);
+    }
+    textBoxMatrix->clear();
+}
+
+int View::showConfirmClear()
+{
+    QMessageBox msgBox;
+    msgBox.setText("You're about to erase everything");
+    msgBox.setIcon(QMessageBox::Warning);
+    msgBox.setInformativeText("Do you want to save your changes?");
+    msgBox.setStandardButtons(QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
+    msgBox.setDefaultButton(QMessageBox::Save);
+    return msgBox.exec();
 }

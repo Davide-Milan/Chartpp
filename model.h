@@ -2,7 +2,7 @@
 #define MODEL_H
 
 #include "matrix.h"
-#include <QTextStream>
+
 class Model
 {
 private:
@@ -21,6 +21,10 @@ public:
     void shiftRowsOnDelete(unsigned int, unsigned int);
     void shiftColumnsOnDelete(unsigned int);
     QVector<QVector<Data *> *>* getData();
+    Matrix* getMatrix() const;
+    void loadData(const QJsonArray&);
+
+    void clean();
 };
 
 #endif // MODEL_H

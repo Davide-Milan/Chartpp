@@ -2,7 +2,7 @@
 #define TEXTBOX_H
 
 #include <QLineEdit>
-#include <QTextStream>
+
 class TextBox : public QLineEdit
 {
     Q_OBJECT
@@ -22,6 +22,7 @@ public:
     void decreaseY();
 
     void focusInEvent(QFocusEvent *event) override;
+    void focusOutEvent(QFocusEvent *event) override;
 signals:
     void updateValue(QString, unsigned int, unsigned int);
     void test(QPair<unsigned int, unsigned int>);

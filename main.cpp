@@ -5,6 +5,7 @@
 #include "model.h"
 #include "view.h"
 #include "controller.h"
+#include <QtDebug>
 
 int main(int argc, char *argv[])
 {

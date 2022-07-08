@@ -1,17 +1,17 @@
 #include "textData.h"
 
-//TextData::TextData() : value("aaaaa")
-//{
+TextData::TextData(QString _value) : value(_value)
+{
 
-//}
+}
 
 
-//TextData::~TextData()
-//{
-////QTextStream(stdout) << "~TEXTDATA";
-//}
+TextData::~TextData()
+{
+//qDebug() << "~TEXTDATA";
+}
 
-//void TextData::setData(QString text){value = text;}
+void TextData::setData(QString text){value = text;}
 
-//QString TextData::getData() {return value;}
+QString TextData::getData() {return value;}
 

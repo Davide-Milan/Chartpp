@@ -14,7 +14,8 @@ private:
     View* view;
     Model* model;
 
-    void write(QJsonObject &jObj) const;
+    void write(QJsonArray&) const;
+    void read(const QJsonArray&);
 public:
     explicit Controller(QObject *parent = nullptr);
     void setModel(Model*);
@@ -23,6 +24,7 @@ public:
     unsigned int getDataMatrixHeigth() const;
     void shiftRowsOnDelete(unsigned int, unsigned int);
     void shiftColumnsOnDelete(unsigned int);
+    Matrix* getDataMatrix() const;
 
 public slots:
     void addRow();
@@ -30,9 +32,13 @@ public slots:
     void addColumn();
     void deleteColumn();
 
-    void test(QPair<unsigned int, unsigned int> value){QTextStream(stdout) << QString::number(value.first) << QString::number(value.second) << endl;}
+    void test(QPair<unsigned int, unsigned int> value){qDebug() << QString::number(value.first) << QString::number(value.second) << endl;}
     void updateValue(QString, unsigned int, unsigned int);
     bool saveToFile() const;
+    void loadDataFromFile();
+    void clearData();
+    void newFile();
 };
 
 #endif // CONTROLLER_H
+
