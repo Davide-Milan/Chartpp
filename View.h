@@ -79,6 +79,9 @@ public:
 
     void addFirstCell();
     QString showSelectNewColumnType();
+    void shiftRowsOnDelete(unsigned int, unsigned int);
+    void shiftColumnsOnDelete(unsigned int);
+    QString showSaveFile();
 signals:
     void senderPosition(unsigned int, unsigned int);
 };

@@ -103,6 +103,7 @@ void View::setUpLeftLayout()
 
 void View::linkButtons()
 {
+    connect(saveDataButton, SIGNAL(clicked()), controller, SLOT(saveToFile()));
     connect(addRowButton, SIGNAL(clicked()), controller, SLOT(addRow()));
     connect(addColumnButton, SIGNAL(clicked()), controller, SLOT(addColumn()));
     connect(deleteRowButton, SIGNAL(clicked()), controller, SLOT(deleteRow()));
@@ -162,13 +163,18 @@ void View::deleteRow(unsigned int row)
     if (size > 0){
         for(unsigned int x = 0; x < size; x++){
             TextBox* tmp= textBoxMatrix[x]->at(row);
-            textBoxMatrix[x]->remove(row);
+            dataArea->removeWidget(textBoxMatrix[x]->at(row));
+            textBoxMatrix[x]->erase(textBoxMatrix[x]->begin() + row);
             delete tmp;
+//            if(row < controller->getDataMatrixHeigth()-1)
+//                controller->shiftRowsOnDelete(x,row);
         }
         if(textBoxMatrix[0]->size()>0){
             for(unsigned int y = row; y < controller->getDataMatrixHeigth()-1; y++){
-                for(unsigned int x = 0; x < controller->getDataMatrixWidth(); x++)
+                for(unsigned int x = 0; x < controller->getDataMatrixWidth(); x++){
                     textBoxMatrix[x]->at(y)->decreaseY();
+                    textBoxMatrix[x]->at(y)->setObjectName(QString::number(x) + "," + QString::number(y));
+                }
             }
         }
         else{
@@ -209,18 +215,53 @@ void View::deleteColumn(unsigned int col)
     unsigned int size = controller->getDataMatrixHeigth();
     if (size > 0){
         for(unsigned int y = 0; y < size; y++){
-            delete textBoxMatrix[col]->at(y);
+            dataArea->removeWidget(textBoxMatrix[col]->at(y));
+            delete textBoxMatrix[col]->at(y);            
         }
         QVector<TextBox*>* tmp= textBoxMatrix[col];
-        textBoxMatrix.remove(col);
+        textBoxMatrix.erase(textBoxMatrix.begin() + col);
         delete tmp;
+//        if(col < controller->getDataMatrixWidth()-1)
+//            controller->shiftColumnsOnDelete(col);
 
         if(textBoxMatrix.size()>0){
             for(unsigned int x = col; x < controller->getDataMatrixWidth()-1; x++){
-                for(unsigned int y = 0; y < controller->getDataMatrixHeigth(); y++)
+                for(unsigned int y = 0; y < controller->getDataMatrixHeigth(); y++){
                     textBoxMatrix[x]->at(y)->decreaseX();
+                    textBoxMatrix[x]->at(y)->setObjectName(QString::number(x) + "," + QString::number(y));
+                }
             }
         }
     }
     else return;
+}
+
+void View::shiftRowsOnDelete(unsigned int x, unsigned int row)
+{
+
+}
+
+
+void View::shiftColumnsOnDelete(unsigned int col)
+{
+//    for(unsigned int _col = col; _col < controller->getDataMatrixWidth()-1; _col++){
+//        QTextStream(stdout) << QString::number(_col);
+//        textBoxMatrix[_col] = new QVector<TextBox*>/*textBoxMatrix[col+1]*/;
+//    }
+    //textBoxMatrix.remove(col);
+}
+
+QString View::showSaveFile()
+{
+    QFileDialog saveDialog(this);
+    QString fileName = saveDialog.getSaveFileName(
+        this,
+        tr("Save data in a json file"), "",
+        tr(".json (*.json)")
+    );
+    if (fileName == "")
+       throw std::runtime_error("Nessun file selezionato: operazione annullata.");
+    if (!fileName.endsWith(".json"))
+        fileName += ".json";
+    return fileName;
 }

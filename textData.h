@@ -3,16 +3,16 @@
 
 #include "data.h"
 
-class TextData : public Data
+class TextData// : public Data
 {
 private:
     QString value;
-public:
-    TextData();
-    ~TextData() override;
-    void setData(QString) override;
-    QString
-    getData() override;
+//public:
+//    TextData();
+//    ~TextData() override;
+//    void setData(QString) override;
+//    QString
+//    getData() override;
 };
 
 #endif // TEXTDATA_H

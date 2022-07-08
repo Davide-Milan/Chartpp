@@ -1,15 +1,15 @@
 #include "numericData.h"
 
-NumericData::NumericData() : value(0)
-{
+//NumericData::NumericData() : value(0)
+//{
 
-}
+//}
 
-NumericData::~NumericData()
-{
-//QTextStream(stdout) << "~NUMERICDATA";
-}
+//NumericData::~NumericData()
+//{
+////QTextStream(stdout) << "~NUMERICDATA";
+//}
 
-void NumericData::setData(QString text){value = text.toDouble();}
+//void NumericData::setData(QString text){value = text.toDouble();}
 
-double NumericData::getData(bool) {return value;}
+//double NumericData::getData(bool) {return value;}

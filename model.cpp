@@ -43,3 +43,18 @@ void Model::updateDataMatrixValue(QString text, unsigned int x, unsigned int y)
 {
     matrix->updateDataMatrixValue(text, x, y);
 }
+
+void Model::shiftRowsOnDelete(unsigned int x, unsigned int row)
+{
+
+}
+
+void Model::shiftColumnsOnDelete(unsigned int col)
+{
+
+}
+
+QVector<QVector<Data *>*>* Model::getData()
+{
+    return matrix->getData();
+}

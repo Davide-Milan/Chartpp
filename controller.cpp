@@ -14,6 +14,18 @@ unsigned int Controller::getDataMatrixWidth() const {return model->getDataMatrix
 
 unsigned int Controller::getDataMatrixHeigth() const {return model->getDataMatrixHeigth();}
 
+void Controller::shiftRowsOnDelete(unsigned int x, unsigned int row)
+{
+    view->shiftRowsOnDelete(x, row);
+    model->shiftRowsOnDelete(x, row);
+}
+
+void Controller::shiftColumnsOnDelete(unsigned int col)
+{
+    view->shiftColumnsOnDelete(col);
+    model->shiftColumnsOnDelete(col);
+}
+
 void Controller::addRow()
 {    
     int size = model->getDataMatrixWidth();
@@ -82,3 +94,37 @@ void Controller::deleteColumn()
 }
 
 void Controller::updateValue(QString text, unsigned int x, unsigned int y){model->updateDataMatrixValue(text, x, y);}
+
+
+
+void Controller::write(QJsonObject& jObj) const
+{
+    QVector<QVector<Data*>*> * data = model->getData();
+    for(int x = 0; x < data->size(); x++){
+        QJsonArray column;
+        for(int y = 0; y < data->at(x)->size(); y++){
+            QJsonObject value;
+            value.insert("value/text", data->at(x)->at(y)->getData());
+            column.append(value);
+        }
+        jObj[QString::number(x)] = column;
+    }
+}
+
+bool Controller::saveToFile() const
+{
+    try {
+        QString fileName = view->showSaveFile();
+        QFile saveFile(fileName);
+        if (!saveFile.open(QIODevice::WriteOnly)) {
+            throw std::runtime_error("Impossibile aprire il file.");
+        }
+        QJsonObject sessionObject;
+        write(sessionObject);
+        saveFile.write(QJsonDocument(sessionObject).toJson());
+        return true;
+    }  catch (std::runtime_error& e) {
+        e.what();
+        return false;
+    }
+}

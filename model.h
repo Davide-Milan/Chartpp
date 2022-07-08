@@ -18,6 +18,9 @@ public:
     unsigned int getDataMatrixHeigth() const;
 
     void updateDataMatrixValue(QString, unsigned int, unsigned int);
+    void shiftRowsOnDelete(unsigned int, unsigned int);
+    void shiftColumnsOnDelete(unsigned int);
+    QVector<QVector<Data *> *>* getData();
 };
 
 #endif // MODEL_H
