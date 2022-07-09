@@ -69,9 +69,6 @@ void View::setUpLeftLayout()
     //create layouts + basic styling
     scrollWidget = new QWidget(this);
     dataArea = new QGridLayout(scrollWidget);
-//    for(int i = 0; i < 15; i++){
-//        dataArea->addWidget(new TextBox(scrollWidget),i,i);
-//    }
 
     dataArea->setSpacing(0);   //sets space between cells    
     dataArea->setSizeConstraint(QLayout::SetMinAndMaxSize);
@@ -124,6 +121,8 @@ void View::connectNewTextBox(TextBox* tmp)
     connect(tmp, SIGNAL(test(QPair<unsigned int, unsigned int>)), controller, SLOT(test(QPair<unsigned int, unsigned int>)));
 }
 
+
+//never reached
 void View::addFirstCell()
 {
     TextBox* tmp = new TextBox(0,0,scrollWidget);
@@ -150,21 +149,34 @@ void View::addRow()
 {
     unsigned int size = controller->getDataMatrixWidth();
     if (size > 0){
-        if(size==1 && controller->getDataMatrixHeigth()==1) textBoxMatrix->append(new QVector<TextBox*>());      //array is empty so I initialize it with a new internal array
-        for(unsigned int x = 0; x < size; x++){
-            int y = controller->getDataMatrixHeigth() - 1;         
+        if(size==1 && controller->getDataMatrixHeigth()==1)
+            textBoxMatrix->append(new QVector<TextBox*>());      //array is empty so I initialize it with a new internal array
+        int y = controller->getDataMatrixHeigth() - 1;
+        for(unsigned int x = 0; x < size; x++){            
+//            if(y>0){
+//                QWidget* aux = dataArea->itemAtPosition(y,x)->widget();
+//                dataArea->removeWidget(aux);
+//                dataArea->addWidget(aux,y+1,x);
+//            }
             TextBox* tmp = new TextBox(x,y,scrollWidget);
             tmp->setObjectName(QString::number(x) + "," + QString::number(y));
             connectNewTextBox(tmp);
             dataArea->addWidget(tmp, y, x);            
-            textBoxMatrix->at(x)->append(tmp);
+            textBoxMatrix->at(x)->append(tmp);            
         }
+//        if(size==1 && controller->getDataMatrixHeigth()==1){
+//            TextBox* tmpTitle = new TextBox(0,-1, this);
+//            tmpTitle->setObjectName("0,-1");
+//            textBoxMatrix->at(0)->append(tmpTitle); //adds new TextBox* for titles
+//            dataArea->addWidget(tmpTitle, size, 0);
+//        }
     }
-    else{
-        addFirstCell();
+    else{   //never enters this else statement because this function gets called after the one in model
+            addFirstCell();
     }
 }
-
+//never used -> decided to clean everything and recreate all the textboxes because
+//the QGridLayout caused problems, couldn't move a whole row
 void View::deleteRow(unsigned int row)
 {
     unsigned int size = controller->getDataMatrixWidth();
@@ -177,7 +189,7 @@ void View::deleteRow(unsigned int row)
 //            if(row < controller->getDataMatrixHeigth()-1)
 //                controller->shiftRowsOnDelete(x,row);
         }
-        if(textBoxMatrix->at(0)->size()>0){
+        if(!textBoxMatrix->at(0)->isEmpty()){
             for(unsigned int y = row; y < controller->getDataMatrixHeigth()-1; y++){
                 for(unsigned int x = 0; x < controller->getDataMatrixWidth(); x++){
                     textBoxMatrix->at(x)->at(y)->decreaseY();
@@ -202,22 +214,32 @@ void View::addColumn()
 {
     unsigned int size = controller->getDataMatrixHeigth();
     if (size > 0){
+
         QVector<TextBox*>* tmpArray = new QVector<TextBox*>();
-        textBoxMatrix->append(tmpArray); //adds new QVector<TextBox*>
+        int x = controller->getDataMatrixWidth() - 1;
+
+//        TextBox* tmpTitle = new TextBox(x,-1, this);
+//        tmpTitle->setObjectName(QString::number(x) + ",-1");
+//        textBoxTitles->append(tmpTitle); //adds new TextBox* for titles
+//        dataTitles->addWidget(tmpTitle);
+
         for(unsigned int y = 0; y < size; y++){
-            int x = controller->getDataMatrixWidth() - 1;
             TextBox* tmp = new TextBox(x,y,scrollWidget);
             tmp->setObjectName(QString::number(x) + "," + QString::number(y));
             connectNewTextBox(tmp);
             dataArea->addWidget(tmp, y, x);
             tmpArray->append(tmp);
         }
+        textBoxMatrix->append(tmpArray); //adds new QVector<TextBox*>
     }
-    else{
+    else{   //never enters this else statement because this function gets called after the one in model
         addFirstCell();
     }
 }
 
+
+//never used -> decided to clean everything and recreate all the textboxes because
+//the QGridLayout caused problems, couldn't move a whole column
 void View::deleteColumn(unsigned int col)
 {
     unsigned int size = controller->getDataMatrixHeigth();
@@ -244,20 +266,6 @@ void View::deleteColumn(unsigned int col)
     else return;
 }
 
-void View::shiftRowsOnDelete(unsigned int x, unsigned int row)
-{
-
-}
-
-
-void View::shiftColumnsOnDelete(unsigned int col)
-{
-//    for(unsigned int _col = col; _col < controller->getDataMatrixWidth()-1; _col++){
-//        qDebug() << QString::number(_col);
-//        textBoxMatrix->at(_col) = new QVector<TextBox*>/*textBoxMatrix->at(col+1)*/;
-//    }
-    //textBoxMatrix->remove(col);
-}
 
 QString View::showSaveFile()
 {
@@ -296,6 +304,7 @@ void View::loadData(const Matrix* dataMatrix)   //called after clean, thus no ne
         textBoxMatrix->append(tmpColumn);
         if(dynamic_cast<NumericData*>(dataMatrix->getDataAt(x))){
             for(int y=0; y < controller->getDataMatrixHeigth(); y++){
+                qDebug() << x << " "<< y << endl;
                 TextBox* tmp = new TextBox(x, y, scrollWidget, QString::number(static_cast<NumericData*>(dataMatrix->getDataAt(x,y))->getData())); //static cast is safe because of the previous dynamic cast
                 connectNewTextBox(tmp);
                 dataArea->addWidget(tmp, y, x);
@@ -315,6 +324,7 @@ void View::loadData(const Matrix* dataMatrix)   //called after clean, thus no ne
 
 void View::clean()
 {
+    //DA METTERE <= DATO CHE I TITOLI SARANNO ALLA FINE
     for(int x = 0; x < controller->getDataMatrixWidth(); x++){
         for(int y=0; y < controller->getDataMatrixHeigth(); y++){
             delete textBoxMatrix->at(x)->at(y);

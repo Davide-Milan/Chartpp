@@ -1,9 +1,8 @@
 #include "textBox.h"
 
-TextBox::TextBox(unsigned int _x, unsigned int _y, QWidget* parent, QString text) : QLineEdit(text, parent), x(_x), y(_y) //forse si può fare usando le posizioni nella grid, se no bisogna aggiornarli ogni volta quando se ne eliminano alcuni
+TextBox::TextBox(int _x, int _y, QWidget* parent, QString text) : QLineEdit(text, parent), x(_x), y(_y) //forse si può fare usando le posizioni nella grid, se no bisogna aggiornarli ogni volta quando se ne eliminano alcuni
 {
-      connect(this, SIGNAL(textChanged(QString)), this, SLOT(cellEmitter(QString)));
-//    connect(this, SIGNAL(textEdited(QString)), this, SLOT(cellEmitter(QString)));
+      connect(this, SIGNAL(textEdited(QString)), this, SLOT(cellEmitter(QString)));
 }
 
 TextBox::~TextBox()
@@ -25,17 +24,16 @@ void TextBox::focusInEvent(QFocusEvent *event)
 {
     QLineEdit::focusInEvent(event);
     lastSelectedTextBox = {x,y};
-    somethingWasSelected = true;
-    setStyleSheet("QLineEdit { background: rgb(32, 191, 227 / .4); }");
+    if(y != -1){
+        somethingWasSelected = true;
+        setStyleSheet("QLineEdit { background: rgba(32, 191, 227, 0.4); }");
+    }
+    else somethingWasSelected = false;
     emit test(lastSelectedTextBox);
 }
 
 void TextBox::focusOutEvent(QFocusEvent *event)
 {
-    QLineEdit::focusOutEvent(event);
-    lastSelectedTextBox = {x,y};
-    somethingWasSelected = true;
-    emit test(lastSelectedTextBox);
     setStyleSheet("QLineEdit { background: rgb(255, 255, 255); }");
 }
 

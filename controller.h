@@ -22,8 +22,6 @@ public:
     void setView(View*);
     unsigned int getDataMatrixWidth() const;
     unsigned int getDataMatrixHeigth() const;
-    void shiftRowsOnDelete(unsigned int, unsigned int);
-    void shiftColumnsOnDelete(unsigned int);
     Matrix* getDataMatrix() const;
 
 public slots:
@@ -34,6 +32,7 @@ public slots:
 
     void test(QPair<unsigned int, unsigned int> value){qDebug() << QString::number(value.first) << QString::number(value.second) << endl;}
     void updateValue(QString, unsigned int, unsigned int);
+    void updateTitle(QString, unsigned int);
     bool saveToFile() const;
     void loadDataFromFile();
     void clearData();

@@ -14,17 +14,6 @@ unsigned int Controller::getDataMatrixWidth() const {return model->getDataMatrix
 
 unsigned int Controller::getDataMatrixHeigth() const {return model->getDataMatrixHeigth();}
 
-void Controller::shiftRowsOnDelete(unsigned int x, unsigned int row)
-{
-    view->shiftRowsOnDelete(x, row);
-    model->shiftRowsOnDelete(x, row);
-}
-
-void Controller::shiftColumnsOnDelete(unsigned int col)
-{
-    view->shiftColumnsOnDelete(col);
-    model->shiftColumnsOnDelete(col);
-}
 
 Matrix *Controller::getDataMatrix() const {return model->getMatrix();}
 
@@ -104,7 +93,12 @@ void Controller::deleteColumn()
 
 void Controller::updateValue(QString text, unsigned int x, unsigned int y){
     model->updateDataMatrixValue(text, x, y);
-    qDebug() << x << " " << y;
+    //qDebug() << x << " " << y;
+}
+
+void Controller::updateTitle(QString text, unsigned int x)
+{
+    model->updateTitle(text, x);
 }
 
 

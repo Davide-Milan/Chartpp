@@ -17,9 +17,8 @@ public:
     unsigned int getDataMatrixWidth() const;
     unsigned int getDataMatrixHeigth() const;
 
+    void updateTitle(QString text, unsigned int x);
     void updateDataMatrixValue(QString, unsigned int, unsigned int);
-    void shiftRowsOnDelete(unsigned int, unsigned int);
-    void shiftColumnsOnDelete(unsigned int);
     QVector<QVector<Data *> *>* getData();
     Matrix* getMatrix() const;
     void loadData(const QJsonArray&);

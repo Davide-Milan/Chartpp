@@ -12,6 +12,7 @@
 class Matrix
 {
 private:
+    QVector<QString> titles;
     QVector<QVector<Data *> *> dataMatrix;
 public:
     Matrix();
@@ -26,7 +27,10 @@ public:
     QVector<QVector<Data *> *>* getMatrixMemory();
     Data* getDataAt(unsigned int=0, unsigned int=0) const;    //by default gives the first Data* of the first vector
     void loadData(const QJsonArray&);
-    void print();
+    void print() const;
+
+    QString getTitle(unsigned int =0);
+    void updateTitle(QString, unsigned int);
 };
 
 #endif // MATRIX_H

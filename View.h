@@ -53,6 +53,8 @@ private:
     QVBoxLayout* leftArea;
     QScrollArea* dataAreaScroll;
     QWidget* scrollWidget;
+
+    QHBoxLayout* dataTitles;
     QGridLayout* dataArea;
     QHBoxLayout* leftButtons;
 
@@ -80,8 +82,6 @@ public:
 
     void addFirstCell();
     QString showSelectNewColumnType();
-    void shiftRowsOnDelete(unsigned int, unsigned int);
-    void shiftColumnsOnDelete(unsigned int);
     QString showSaveFile();
     QString showLoadFile();
     void loadData(const Matrix* dataMatrix);

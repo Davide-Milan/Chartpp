@@ -7,9 +7,10 @@ class TextBox : public QLineEdit
 {
     Q_OBJECT
 private:
-    unsigned int x, y;
+
 public:
-    TextBox(unsigned int, unsigned int, QWidget* = nullptr, QString = "");
+    int x, y;
+    TextBox(int, int, QWidget* = nullptr, QString = "");
     virtual ~TextBox();
 
     static QPair<unsigned int, unsigned int> lastSelectedTextBox;

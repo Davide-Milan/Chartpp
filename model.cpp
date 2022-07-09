@@ -39,19 +39,14 @@ unsigned int Model::getDataMatrixHeigth() const
     return 0;
 }
 
+void Model::updateTitle(QString text, unsigned int x)
+{
+    matrix->updateTitle(text, x);
+}
+
 void Model::updateDataMatrixValue(QString text, unsigned int x, unsigned int y)
 {
     matrix->updateDataMatrixValue(text, x, y);
-}
-
-void Model::shiftRowsOnDelete(unsigned int x, unsigned int row)
-{
-
-}
-
-void Model::shiftColumnsOnDelete(unsigned int col)
-{
-
 }
 
 Matrix* Model::getMatrix() const {return matrix;}
