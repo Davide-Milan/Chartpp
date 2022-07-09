@@ -19,11 +19,13 @@ public:
 
     void updateTitle(QString text, unsigned int x);
     void updateDataMatrixValue(QString, unsigned int, unsigned int);
-    QVector<QVector<Data *> *>* getData();
+    const QVector<QVector<Data *> *>* getData() const;
     Matrix* getMatrix() const;
     void loadData(const QJsonArray&);
 
     void clean();
+    QString getColumnTitle(unsigned int) const;
+    bool isNumeric(unsigned int=0) const;
 };
 
 #endif // MODEL_H

@@ -39,6 +39,7 @@ class View : public QWidget
     Q_OBJECT
 
 private:
+    QVector<TextBox*>* textBoxTitles;
     QVector<QVector<TextBox*>*>* textBoxMatrix;
     QMenuBar* menuBar;
     QMenu* file;
@@ -77,7 +78,7 @@ public:
 
     void addRow();
     void deleteRow(unsigned int);
-    void addColumn();
+    void addColumn(bool);
     void deleteColumn(unsigned int);
 
     void addFirstCell();

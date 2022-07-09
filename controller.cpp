@@ -1,7 +1,6 @@
 #include "controller.h"
 
-Controller::Controller(QObject *parent)
-    : QObject{parent}
+Controller::Controller(QObject *parent) : QObject{parent}
 {
 
 }
@@ -14,98 +13,15 @@ unsigned int Controller::getDataMatrixWidth() const {return model->getDataMatrix
 
 unsigned int Controller::getDataMatrixHeigth() const {return model->getDataMatrixHeigth();}
 
-
 Matrix *Controller::getDataMatrix() const {return model->getMatrix();}
 
-void Controller::addRow()
-{    
-    int size = model->getDataMatrixWidth();
+void Controller::updateValue(QString text, unsigned int x, unsigned int y){model->updateDataMatrixValue(text, x, y);}
 
-    if(size == 0){
-        bool numeric;
-        QString selection = view->showSelectNewColumnType();
-        if (selection.isEmpty())
-            return;
-        if(selection == "Numeric") numeric = true;
-        else numeric = false;
-        model->addColumnData(numeric);
-        //this way it handles the Numeric or Text choice without adding a new function
-    }
-    else
-        model->addRowData();
-    view->addRow();
-}
-
-void Controller::deleteRow()
-{
-    if(!TextBox::somethingWasSelected){
-        QMessageBox msgBox;
-        msgBox.setText("No row selected");
-        msgBox.exec();
-        return;
-    }
-
-    TextBox::somethingWasSelected = false;
-    unsigned int size = getDataMatrixHeigth();
-    if (size > 0){
-        unsigned int row = TextBox::getLastSelectedTextBoxCoordinates().second;
-//        view->deleteRow(row);
-//        model->deleteRowData(row); //old
-        view->clean();
-        model->deleteRowData(row);
-        view->loadData(getDataMatrix());
-    }
-}
-
-void Controller::addColumn()
-{
-    TextBox::somethingWasSelected = false;
-    bool numeric;
-    QString selection = view->showSelectNewColumnType();
-    if (selection.isEmpty())
-        return;
-    if(selection == "Numeric") numeric = true;
-    else numeric = false;
-    model->addColumnData(numeric);
-    view->addColumn();
-}
-
-void Controller::deleteColumn()
-{
-    if(!TextBox::somethingWasSelected){
-        QMessageBox msgBox;
-        msgBox.setText("No column selected");
-        msgBox.exec();
-        return;
-    }
-
-    TextBox::somethingWasSelected = false;
-    unsigned int size = getDataMatrixWidth();    
-    if (size > 0){
-        unsigned int col = TextBox::getLastSelectedTextBoxCoordinates().first;
-//        view->deleteColumn(col);
-//        model->deleteColumnData(col); //old
-        view->clean();
-        model->deleteColumnData(col);
-        view->loadData(getDataMatrix());
-    }
-}
-
-void Controller::updateValue(QString text, unsigned int x, unsigned int y){
-    model->updateDataMatrixValue(text, x, y);
-    //qDebug() << x << " " << y;
-}
-
-void Controller::updateTitle(QString text, unsigned int x)
-{
-    model->updateTitle(text, x);
-}
-
-
+void Controller::updateTitle(QString text, unsigned int x){model->updateTitle(text, x);}
 
 void Controller::write(QJsonArray& jObj) const
 {
-    QVector<QVector<Data*>*> * data = model->getData();
+    const QVector<QVector<Data*>*> * data = model->getData();
     for(int x = 0; x < data->size(); x++){
         QJsonObject column;
         (dynamic_cast<NumericData*>(data->at(x)->at(0))) ? column["type"] = "Numeric" : column["type"] = "Text";
@@ -121,6 +37,7 @@ void Controller::write(QJsonArray& jObj) const
                 for(int y = 0; y < data->at(x)->size(); y++)
                     dataArray.append(static_cast<TextData*>(data->at(x)->at(y))->getData());
         }
+        column["title"] = model->getColumnTitle(x);
         column["data"] = dataArray;
         jObj.append(column);
     }
@@ -144,7 +61,6 @@ bool Controller::saveToFile() const
         return false;
     }
 }
-
 
 void Controller::read(const QJsonArray& json)
 {
@@ -171,7 +87,6 @@ void Controller::loadDataFromFile()
     }
 }
 
-
 void Controller::clearData()
 {
     TextBox::somethingWasSelected = false;
@@ -195,7 +110,76 @@ void Controller::clearData()
     }
 }
 
-void Controller::newFile()
+void Controller::newFile(){clearData();}
+
+bool Controller::anyCellSelected(bool row)
 {
-    clearData();
+    if(!TextBox::somethingWasSelected){
+        QMessageBox msgBox;
+        row ? msgBox.setText("No row selected") : msgBox.setText("No column selected");
+        msgBox.exec();
+        return false;
+    }
+    return true;
 }
+
+bool Controller::isNumeric(unsigned int col) const{return model->isNumeric(col);}
+
+void Controller::addRow()
+{    
+    int width = model->getDataMatrixWidth();
+
+    bool isNumeric = false;
+    if(width == 0){
+        QString selection = view->showSelectNewColumnType();
+        if (selection.isEmpty())return;
+        else if(selection == "Numeric") isNumeric = true;
+        model->addColumnData(isNumeric); //this way it handles the Numeric or Text choice without adding a new function
+    }
+    else
+        model->addRowData();
+    view->addRow();
+}
+
+void Controller::deleteRow()
+{
+    if(!anyCellSelected(true)) return;
+
+    TextBox::somethingWasSelected = false;
+    unsigned int size = getDataMatrixHeigth();
+    if (size > 0){
+        unsigned int row = TextBox::getLastSelectedTextBoxCoordinates().second;
+        view->clean();
+        model->deleteRowData(row);
+        model->getMatrix()->print();
+        view->loadData(getDataMatrix());
+    }
+}
+
+void Controller::addColumn()
+{
+    TextBox::somethingWasSelected = false;
+    bool isNumeric = false;
+    QString selection = view->showSelectNewColumnType();
+    if (selection.isEmpty())
+        return;
+    if(selection == "Numeric") isNumeric = true;
+    model->addColumnData(isNumeric);
+    view->addColumn(isNumeric);
+}
+
+void Controller::deleteColumn()
+{
+    if(!anyCellSelected(false)) return;
+
+    TextBox::somethingWasSelected = false;
+    unsigned int size = getDataMatrixWidth();    
+    if (size > 0){
+        unsigned int col = TextBox::getLastSelectedTextBoxCoordinates().first;
+        view->clean();
+        model->deleteColumnData(col);
+        view->loadData(getDataMatrix());
+    }
+}
+
+

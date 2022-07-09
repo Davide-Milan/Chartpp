@@ -4,62 +4,44 @@ Model::Model() : matrix(new Matrix)
 {
 }
 
-void Model::addRowData()
-{
-    matrix->addRowMatrix();
-}
 
-void Model::deleteRowData(unsigned int row)
-{
-    matrix->deleteRowMatrix(row);
-}
-
-void Model::addColumnData(bool numeric)
-{
-    matrix->addColumnMatrix(numeric);
-}
-
-void Model::deleteColumnData(unsigned int col)
-{
-    matrix->deleteColumnMatrix(col);
-}
-
+/*GETTERS*/
 unsigned int Model::getDataMatrixWidth() const
 {
     if(matrix!=nullptr)
-        //qDebug() << "aaaaaaa" << endl; //LOG
         return matrix->getDataMatrixWidth();
     return 0;
 }
 unsigned int Model::getDataMatrixHeigth() const
 {
     if(matrix!=nullptr)
-        //qDebug() << "aaaaaaa" << endl; //LOG
         return matrix->getDataMatrixHeigth();
     return 0;
 }
-
-void Model::updateTitle(QString text, unsigned int x)
-{
-    matrix->updateTitle(text, x);
-}
-
-void Model::updateDataMatrixValue(QString text, unsigned int x, unsigned int y)
-{
-    matrix->updateDataMatrixValue(text, x, y);
-}
-
+QString Model::getColumnTitle(unsigned int col) const{return matrix->getTitle(col);}
+const QVector<QVector<Data *>*>* Model::getData() const {return matrix->getMatrixMemory();}
 Matrix* Model::getMatrix() const {return matrix;}
 
-QVector<QVector<Data *>*>* Model::getData()
-{
-    return matrix->getMatrixMemory();
-}
 
-void Model::loadData(const QJsonArray& json)
-{
-   matrix->loadData(json);
-}
+/*SETTERS*/
+void Model::updateTitle(QString text, unsigned int col){matrix->updateTitle(text, col);}
+
+void Model::updateDataMatrixValue(QString text, unsigned int x, unsigned int y){matrix->updateDataMatrixValue(text, x, y);}
+
+/*MODIFIERS*/
+void Model::addRowData(){matrix->addRowMatrix();}
+
+void Model::deleteRowData(unsigned int row){matrix->deleteRowMatrix(row);}
+
+void Model::addColumnData(bool isNumeric){matrix->addColumnMatrix(isNumeric);}
+
+void Model::deleteColumnData(unsigned int col){matrix->deleteColumnMatrix(col);}
+
+bool Model::isNumeric(unsigned int col) const{return matrix->isNumeric(col);}
+
+
+/*SUPPORT*/
+void Model::loadData(const QJsonArray& json){matrix->loadData(json);}
 
 void Model::clean(){
     delete matrix;

@@ -24,12 +24,13 @@ public:
     void addColumnMatrix(bool);
     void deleteColumnMatrix(unsigned int);
     void updateDataMatrixValue(QString, unsigned int, unsigned int);
-    QVector<QVector<Data *> *>* getMatrixMemory();
+    const QVector<QVector<Data *> *>* getMatrixMemory() const;
     Data* getDataAt(unsigned int=0, unsigned int=0) const;    //by default gives the first Data* of the first vector
     void loadData(const QJsonArray&);
+    bool isNumeric(unsigned int) const;
     void print() const;
 
-    QString getTitle(unsigned int =0);
+    QString getTitle(unsigned int =0) const;
     void updateTitle(QString, unsigned int);
 };
 

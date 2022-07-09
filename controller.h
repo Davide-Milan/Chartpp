@@ -16,13 +16,16 @@ private:
 
     void write(QJsonArray&) const;
     void read(const QJsonArray&);
+    bool anyCellSelected(bool);
+
 public:
     explicit Controller(QObject *parent = nullptr);
     void setModel(Model*);
     void setView(View*);
     unsigned int getDataMatrixWidth() const;
     unsigned int getDataMatrixHeigth() const;
-    Matrix* getDataMatrix() const;
+    Matrix* getDataMatrix() const;    
+    bool isNumeric(unsigned int col) const;
 
 public slots:
     void addRow();
@@ -30,7 +33,6 @@ public slots:
     void addColumn();
     void deleteColumn();
 
-    void test(QPair<unsigned int, unsigned int> value){qDebug() << QString::number(value.first) << QString::number(value.second) << endl;}
     void updateValue(QString, unsigned int, unsigned int);
     void updateTitle(QString, unsigned int);
     bool saveToFile() const;

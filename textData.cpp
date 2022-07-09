@@ -2,13 +2,11 @@
 
 TextData::TextData(QString _value) : value(_value)
 {
-
 }
 
 
 TextData::~TextData()
 {
-//qDebug() << "~TEXTDATA";
 }
 
 void TextData::setData(QString text){value = text;}

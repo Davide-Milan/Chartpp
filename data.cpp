@@ -3,10 +3,8 @@
 
 Data::Data()
 {
-
 }
 
 Data::~Data()
 {
-    //qDebug() << "~DATA";
 }
