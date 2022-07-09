@@ -40,7 +40,6 @@ Data* Matrix::getDataAt(unsigned int x, unsigned int y) const{return dataMatrix.
 void Matrix::loadData(const QJsonArray& json)
 {
     for(int x = 0; x < json.size(); x++){
-        //qDebug() << json.at(x).toObject().value("type").toString();
         dataMatrix.append(new QVector<Data*>);
         QJsonArray data = json.at(x).toObject().value("data").toArray();
         if(json.at(x).toObject().value("type").toString() == "Numeric"){
@@ -62,35 +61,34 @@ bool Matrix::isNumeric(unsigned int col) const
 }
 
 
-void Matrix::print() const
+void Matrix::printDebug() const
 {
     for(unsigned int y = 0; y < getDataMatrixHeigth(); y++){
         for(unsigned int x = 0; x < getDataMatrixWidth(); x++){
-            if(isNumeric(x)){
-                QString tmp = (QString::number(static_cast<NumericData*>(getDataAt(x,y))->getData()));
+            QString aux;
+            if(dynamic_cast<NumericData*>(getDataAt(x))){
+                aux = (QString::number(static_cast<NumericData*>(getDataAt(x,y))->getData()));
             }
             else{
-                QString tmp = static_cast<TextData*>(getDataAt(x,y))->getData();
-                QTextStream(stdout) << tmp << "       ";
+                aux = static_cast<TextData*>(getDataAt(x,y))->getData();
             }
+            QTextStream(stdout << aux << "       ";
         }
         QTextStream(stdout) << "" << endl;
     }
     for(unsigned int x = 0; x < getDataMatrixWidth(); x++){
         QTextStream(stdout) << getTitle(x) + "       ";
     }
-    QTextStream(stdout) << "" << endl;
+     QTextStream(stdout) << "" << endl;
 }
 
 void Matrix::addRowMatrix(){
-    print();
     for(int x = 0; x < getDataMatrixWidth(); x++){
         if(isNumeric(x))
             dataMatrix.at(x)->append(new NumericData);
         else
             dataMatrix.at(x)->append(new TextData);
     }
-    print();
 }
 
 void Matrix::deleteRowMatrix(unsigned int row)
@@ -128,7 +126,6 @@ void Matrix::addColumnMatrix(bool isNumeric)
                 dataMatrix.at(getDataMatrixWidth()-1)->push_back(new TextData);
         }
     }
-    print();
 }
 
 void Matrix::deleteColumnMatrix(unsigned int col){

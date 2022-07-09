@@ -2,7 +2,6 @@
 #define TEXTBOX_H
 
 #include <QLineEdit>
-#include <QTextStream>
 
 class TextBox : public QLineEdit
 {

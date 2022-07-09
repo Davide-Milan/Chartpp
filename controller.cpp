@@ -151,7 +151,6 @@ void Controller::deleteRow()
         unsigned int row = TextBox::getLastSelectedTextBoxCoordinates().second;
         view->clean();
         model->deleteRowData(row);
-        model->getMatrix()->print();
         view->loadData(getDataMatrix());
     }
 }

@@ -37,8 +37,6 @@ void View::deleteRow(unsigned int row)
             dataArea->removeWidget(textBoxMatrix->at(x)->at(row));
             textBoxMatrix->at(x)->erase(textBoxMatrix->at(x)->begin() + row);
             delete tmp;
-//            if(row < controller->getDataMatrixHeigth()-1)
-//                controller->shiftRowsOnDelete(x,row);
         }
         if(!textBoxMatrix->at(0)->isEmpty()){
             for(unsigned int y = row; y < controller->getDataMatrixHeigth()-1; y++){
@@ -55,8 +53,6 @@ void View::deleteRow(unsigned int row)
                 delete tmp;
             }
         }
-        qDebug() << "TextBoxMatrix width: " + QString::number(textBoxMatrix->size()) << endl;
-        qDebug() << "TextBoxMatrix heigth: " + QString::number(textBoxMatrix->at(0)->size()) << endl;
     }
     else return;
 }
@@ -314,7 +310,6 @@ void View::addColumn(bool isNumeric)
 
 void View::loadData(const Matrix* dataMatrix)   //called after clean, thus no need for checks on textBoxMatrix content
 {
-    dataMatrix->print();
     for(int x=0; x < controller->getDataMatrixWidth(); x++){
         QVector<TextBox*>* tmpColumn = new QVector<TextBox*>;
         textBoxMatrix->append(tmpColumn);
@@ -345,7 +340,6 @@ void View::loadData(const Matrix* dataMatrix)   //called after clean, thus no ne
         connectNewTextBox(tmpTitle);
         textBoxTitles->append(tmpTitle); //adds new TextBox* for titles
         dataArea->addWidget(tmpTitle,controller->getDataMatrixHeigth(), x);
-        qDebug() << "DOPO TITLE";
     }
-    qDebug() << "DOPO LOAD";
+    dataMatrix->printDebug();
 }

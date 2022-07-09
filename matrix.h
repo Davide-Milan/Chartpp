@@ -28,7 +28,7 @@ public:
     Data* getDataAt(unsigned int=0, unsigned int=0) const;    //by default gives the first Data* of the first vector
     void loadData(const QJsonArray&);
     bool isNumeric(unsigned int) const;
-    void print() const;
+    void printDebug() const;
 
     QString getTitle(unsigned int =0) const;
     void updateTitle(QString, unsigned int);

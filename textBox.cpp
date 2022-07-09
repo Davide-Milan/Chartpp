@@ -3,7 +3,7 @@
 TextBox::TextBox(int _x, int _y, bool isNumeric, QWidget* parent, QString text) : QLineEdit(text, parent), x(_x), y(_y) //forse si può fare usando le posizioni nella grid, se no bisogna aggiornarli ogni volta quando se ne eliminano alcuni
 {
       connect(this, SIGNAL(textEdited(QString)), this, SLOT(cellEmitter(QString)));
-      if(isNumeric) setText("0");
+      if(isNumeric && text=="") setText("0");
 }
 
 TextBox::~TextBox()
@@ -35,7 +35,6 @@ void TextBox::focusInEvent(QFocusEvent *event)
         setStyleSheet("QLineEdit { background: rgba(32, 191, 227, 0.4); }");
     }
     else somethingWasSelected = false;
-    QTextStream(stdout) << QString::number(x) << " " << QString::number(y) << endl;
 }
 
 //STATIC FIELDS AND FUNCTIONS
