@@ -72,7 +72,7 @@ void Matrix::printDebug() const
             else{
                 aux = static_cast<TextData*>(getDataAt(x,y))->getData();
             }
-            QTextStream(stdout << aux << "       ";
+            QTextStream(stdout) << aux << "       ";
         }
         QTextStream(stdout) << "" << endl;
     }
