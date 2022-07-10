@@ -8,17 +8,18 @@ class TextBox : public QLineEdit
     Q_OBJECT
 private:
     int x, y;
-    bool numeric;
-    static QPair<unsigned int, unsigned int> lastSelectedTextBox;
+    bool isNumericText;
+    static QPair<int,int> lastSelectedTextBox;
 public:
     TextBox(int, int, bool = false, QWidget* = nullptr, QString = "");
     virtual ~TextBox();
 
-    static QPair<unsigned int, unsigned int> getLastSelectedTextBoxCoordinates();
+    static QPair<int,int> getLastSelectedTextBoxCoordinates();
     static bool somethingWasSelected;
 
-    unsigned int getX() const;
-    unsigned int getY() const;
+    int getX() const;
+    int getY() const;
+    bool isNumeric() const;
 
     void focusInEvent(QFocusEvent *event) override;
     void focusOutEvent(QFocusEvent *event) override;

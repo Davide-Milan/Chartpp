@@ -1,6 +1,6 @@
 #include "model.h"
 
-Model::Model() : matrix(new Matrix)
+Model::Model() : matrix(new Matrix), chart(nullptr)
 {
 }
 
@@ -18,9 +18,35 @@ unsigned int Model::getDataMatrixHeigth() const
         return matrix->getDataMatrixHeigth();
     return 0;
 }
-QString Model::getColumnTitle(unsigned int col) const{return matrix->getTitle(col);}
+QString Model::getColumnTitle(unsigned int col) const {return matrix->getTitle(col);}
 const QVector<QVector<Data *>*>* Model::getData() const {return matrix->getMatrixMemory();}
 Matrix* Model::getMatrix() const {return matrix;}
+
+unsigned int Model::getNumberOfNumerics() const {return matrix->getNumberOfNumerics();}
+unsigned int Model::getNumberOfTexts() const {return matrix->getNumberOfTexts();}
+
+QVector<int>* Model::getNumericDataIndexes() const {return matrix->getNumericDataIndexes();}
+QVector<int>* Model::getTextDataIndexes() const {return matrix->getTextDataIndexes();}
+
+Chart* Model::getChart() const {return chart;}
+
+Chart* Model::createLineChart(QString title, const QVector<int>& numericIndexes)
+{
+    chart = new LineChart(title, matrix, numericIndexes);
+    return chart;
+}
+
+Chart* Model::createBarChart(QString title, const QVector<int>& numericIndexes, int textIndex)
+{
+    chart = new BarChart(title, matrix, numericIndexes, textIndex);
+    return chart;
+}
+
+Chart* Model::createPieChart(QString title, int numericIndex, int textIndex)
+{
+    chart = new PieChart(title, matrix, numericIndex, textIndex);
+    return chart;
+}
 
 
 /*SETTERS*/

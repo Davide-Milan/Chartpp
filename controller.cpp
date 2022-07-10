@@ -181,4 +181,177 @@ void Controller::deleteColumn()
     }
 }
 
+void Controller::deleteChart()
+{
+    view->closeChartView();
+    delete model->getChart();
+}
 
+//void Controller::lineData()
+//{
+//    if(getDataMatrixWidth() < 1){
+//        QMessageBox msgBox;
+//        msgBox.setText("There's no data to select from");
+//        msgBox.exec();
+//    }
+//    if(model->getNumberOfNumerics() < 1){
+//        QMessageBox msgBox;
+//        msgBox.setText("Insert at least one numeric column first");
+//        msgBox.exec();
+//    }
+//    else{
+//        QString title = view->showChartTitleSelector();
+//        int chosenTextIndex = -1;
+//        QVector<int> chosenNumericIndexes;
+//        if(model->getNumberOfTexts() > 0){
+//            QVector<int>* textDataIndexes = model->getTextDataIndexes();
+//            chosenTextIndex = view->showColumnSelectionDialogOptionalSingleText(textDataIndexes);
+//            delete textDataIndexes;
+//        }
+//        QVector<int>* numericDataIndexesLeft = model->getNumericDataIndexes();
+//        bool choose = true;
+//        while(choose){
+//            if(numericDataIndexesLeft->size() > 0){
+//                int numericIndex = view->showColumnSelectionDialogNumeric(numericDataIndexesLeft);
+//                if(numericIndex >= 0){
+//                    chosenNumericIndexes.append(numericIndex);
+//                    numericDataIndexesLeft->erase(numericDataIndexesLeft->begin() + numericDataIndexesLeft->indexOf(numericIndex));
+//                }
+//                else choose = false;
+//            }
+//            else choose = false;
+//        }
+//        delete numericDataIndexesLeft;
+
+//        if(chosenNumericIndexes.size() < 1){
+//            QMessageBox msgBox;
+//            msgBox.setText("No data was selected, try again");
+//            msgBox.exec();
+//        }
+//        else{
+//            view->drawChart((model->createLineChart(title, chosenNumericIndexes,chosenTextIndex))->draw());
+//        }
+//    }
+//}
+
+
+void Controller::lineData()
+{
+    if(getDataMatrixWidth() < 1){
+        QMessageBox msgBox;
+        msgBox.setText("There's no data to select from");
+        msgBox.exec();
+    }
+    if(model->getNumberOfNumerics() < 1){
+        QMessageBox msgBox;
+        msgBox.setText("Insert at least one numeric column first");
+        msgBox.exec();
+    }
+    else{
+        QString title = view->showChartTitleSelector();
+        QVector<int> chosenNumericIndexes;
+        QVector<int>* numericDataIndexesLeft = model->getNumericDataIndexes();
+        bool choose = true;
+        while(choose){
+            if(numericDataIndexesLeft->size() > 0){
+                int numericIndex = view->showColumnSelectionDialogNumeric(numericDataIndexesLeft);
+                if(numericIndex >= 0){
+                    chosenNumericIndexes.append(numericIndex);
+                    numericDataIndexesLeft->erase(numericDataIndexesLeft->begin() + numericDataIndexesLeft->indexOf(numericIndex));
+                }
+                else choose = false;
+            }
+            else choose = false;
+        }
+        delete numericDataIndexesLeft;
+
+        if(chosenNumericIndexes.size() < 1){
+            QMessageBox msgBox;
+            msgBox.setText("No data was selected, try again");
+            msgBox.exec();
+        }
+        else{
+            view->drawChart((model->createLineChart(title, chosenNumericIndexes))->draw());
+        }
+    }
+}
+
+void Controller::barData()
+{
+    if(getDataMatrixWidth() < 1){
+        QMessageBox msgBox;
+        msgBox.setText("There's no data to select from");
+        msgBox.exec();
+    }
+    if(model->getNumberOfNumerics() < 1){
+        QMessageBox msgBox;
+        msgBox.setText("Insert at least one numeric column first");
+        msgBox.exec();
+    }
+    else{
+        QString title = view->showChartTitleSelector();
+        int chosenTextIndex = -1;
+        QVector<int> chosenNumericIndexes;
+        if(model->getNumberOfTexts() > 0){
+            QVector<int>* textDataIndexes = model->getTextDataIndexes();
+            chosenTextIndex = view->showColumnSelectionDialogOptionalSingleText(textDataIndexes);
+            delete textDataIndexes;
+        }
+        QVector<int>* numericDataIndexesLeft = model->getNumericDataIndexes();
+        bool choose = true;
+        while(choose){
+            if(numericDataIndexesLeft->size() > 0){
+                int numericIndex = view->showColumnSelectionDialogNumeric(numericDataIndexesLeft);
+                if(numericIndex >= 0){
+                    chosenNumericIndexes.append(numericIndex);
+                    numericDataIndexesLeft->erase(numericDataIndexesLeft->begin() + numericDataIndexesLeft->indexOf(numericIndex));
+                }
+                else choose = false;
+            }
+            else choose = false;
+        }
+        delete numericDataIndexesLeft;
+
+        if(chosenNumericIndexes.size() < 1){
+            QMessageBox msgBox;
+            msgBox.setText("No data was selected, try again");
+            msgBox.exec();
+        }
+        else{
+            view->drawChart((model->createBarChart(title, chosenNumericIndexes, chosenTextIndex))->draw());
+        }
+    }
+}
+
+
+void Controller::pieData()
+{
+    if(getDataMatrixWidth() < 1){
+        QMessageBox msgBox;
+        msgBox.setText("There's no data to select from");
+        msgBox.exec();
+    }
+    if(model->getNumberOfNumerics() < 1){
+        QMessageBox msgBox;
+        msgBox.setText("Insert at least one numeric column first");
+        msgBox.exec();
+    }
+    else{
+        QString title = view->showChartTitleSelector();
+        int chosenTextIndex = -1;
+        if(model->getNumberOfTexts() > 0){
+            QVector<int>* textDataIndexes = model->getTextDataIndexes();
+            chosenTextIndex = view->showColumnSelectionDialogOptionalSingleText(textDataIndexes);
+            delete textDataIndexes;
+        }
+        int numericIndex = view->showColumnSelectionDialogNumeric(model->getNumericDataIndexes());
+        if(numericIndex < 0){
+            QMessageBox msgBox;
+            msgBox.setText("No data was selected, try again");
+            msgBox.exec();
+        }
+        else{
+            view->drawChart((model->createPieChart(title, numericIndex, chosenTextIndex))->draw());
+        }
+    }
+}

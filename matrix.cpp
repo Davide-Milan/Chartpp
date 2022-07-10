@@ -135,4 +135,45 @@ void Matrix::deleteColumnMatrix(unsigned int col){
     titles.erase(titles.begin() + col);
 }
 
+unsigned int Matrix::getNumberOfNumerics() const
+{
+    unsigned int count = 0;
+    for(unsigned int col = 0; col < getDataMatrixWidth(); col++){
+        if(dynamic_cast<NumericData*>(getDataAt(col, 0)))
+            count++;
+    }
+    return count;
+}
+
+unsigned int Matrix::getNumberOfTexts() const
+{
+    unsigned int count = 0;
+    for(unsigned int col = 0; col < getDataMatrixWidth(); col++){
+        if(dynamic_cast<TextData*>(getDataAt(col, 0)))
+            count++;
+    }
+    return count;
+}
+
+
+QVector<int>* Matrix::getNumericDataIndexes() const
+{
+    QVector<int>* numericColumns = new QVector<int>;
+    for(unsigned int col = 0; col < getDataMatrixWidth(); col++){
+        if(isNumeric(col)){
+            numericColumns->append(col);
+        }
+    }
+    return numericColumns;
+}
+QVector<int>* Matrix::getTextDataIndexes() const
+{
+    QVector<int>* textColumns = new QVector<int>;
+    for(unsigned int col = 0; col < getDataMatrixWidth(); col++){
+        if(!isNumeric(col)){
+            textColumns->append(col);
+        }
+    }
+    return textColumns;
+}
 

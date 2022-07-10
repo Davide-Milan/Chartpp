@@ -33,12 +33,18 @@ public slots:
     void addColumn();
     void deleteColumn();
 
-    void updateValue(QString, unsigned int, unsigned int);
-    void updateTitle(QString, unsigned int);
+    void lineData();
+    void barData();
+    void pieData();
+
     bool saveToFile() const;
     void loadDataFromFile();
     void clearData();
     void newFile();
+
+    void updateValue(QString, unsigned int, unsigned int);
+    void updateTitle(QString, unsigned int);
+    void deleteChart();
 };
 
 #endif // CONTROLLER_H

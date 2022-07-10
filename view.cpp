@@ -15,78 +15,45 @@ View::View(QWidget *parent)
     mainLayout->addLayout(leftArea);
 
     //right (to do)
-
+    setUpRightLayout();
+    mainLayout->addLayout(createChartButtons);
 
     //styling
     setLayout(mainLayout);
     mainLayout->setContentsMargins(10,0,10,10);
+
 }
 
 View::~View()
 {
 }
 
-//never used -> decided to clean everything and recreate all the textboxes because
-//the QGridLayout caused problems, couldn't move a whole row
-void View::deleteRow(unsigned int row)
+void View::setUpRightLayout()
 {
-    unsigned int size = controller->getDataMatrixWidth();
-    if (size > 0){
-        for(unsigned int x = 0; x < size; x++){
-            TextBox* tmp= textBoxMatrix->at(x)->at(row);
-            dataArea->removeWidget(textBoxMatrix->at(x)->at(row));
-            textBoxMatrix->at(x)->erase(textBoxMatrix->at(x)->begin() + row);
-            delete tmp;
-        }
-        if(!textBoxMatrix->at(0)->isEmpty()){
-            for(unsigned int y = row; y < controller->getDataMatrixHeigth()-1; y++){
-                for(unsigned int x = 0; x < controller->getDataMatrixWidth(); x++){
-                    //textBoxMatrix->at(x)->at(y)->decreaseY();
-                    textBoxMatrix->at(x)->at(y)->setObjectName(QString::number(x) + "," + QString::number(y));
-                }
-            }
-        }
-        else{
-            for(int x = 0; x < controller->getDataMatrixWidth(); x++){
-                QVector<TextBox*>* tmp = textBoxMatrix->at(x);
-                textBoxMatrix->remove(x);
-                delete tmp;
-            }
-        }
-    }
-    else return;
-}
+    //create all buttons
+    lineChart = new QPushButton("Line Chart", this);
+    barChart = new QPushButton("Bar Chart", this);
+    pieChart = new QPushButton("Pie Chart", this);
+    closeChart = new QPushButton("Close chart", this);
+    closeChart->hide();
+    closeChart->setFixedWidth(200);
 
-//never used -> decided to clean everything and recreate all the textboxes because
-//the QGridLayout caused problems, couldn't move a whole column
-void View::deleteColumn(unsigned int col)
-{
-    unsigned int size = controller->getDataMatrixHeigth();
-    if (size > 0){
-        for(unsigned int y = 0; y < size; y++){
-            dataArea->removeWidget(textBoxMatrix->at(col)->at(y));
-            delete textBoxMatrix->at(col)->at(y);
-        }
-        QVector<TextBox*>* tmp= textBoxMatrix->at(col);
-        textBoxMatrix->erase(textBoxMatrix->begin() + col);
-        delete tmp;
-//        if(col < controller->getDataMatrixWidth()-1)
-//            controller->shiftColumnsOnDelete(col);
+    //create layout + basic styling
+    createChartButtons = new QVBoxLayout();
+    createChartButtons->setContentsMargins(0,0,0,0);
+    chartViewer = new QVBoxLayout();
 
-        if(textBoxMatrix->size()>0){
-            for(unsigned int x = col; x < controller->getDataMatrixWidth()-1; x++){
-                for(unsigned int y = 0; y < controller->getDataMatrixHeigth(); y++){
-                    //textBoxMatrix->at(x)->at(y)->decreaseX();
-                    textBoxMatrix->at(x)->at(y)->setObjectName(QString::number(x) + "," + QString::number(y));
-                }
-            }
-        }
-    }
-    else return;
+    //setup widgets in layouts
+    createChartButtons->addWidget(lineChart);
+    createChartButtons->addWidget(barChart);
+    createChartButtons->addWidget(histogramChart);
+    chartViewer->addWidget(closeChart);
+    chartViewer->setAlignment(closeChart, Qt::AlignCenter);
 }
 
 
-void View::setController(Controller* c) {
+void View::setController(Controller* c)
+{
     controller = c;
     linkButtons();
 }
@@ -156,11 +123,17 @@ void View::setUpLeftLayout()
     leftButtons->addWidget(deleteRowButton);
     leftButtons->addWidget(addColumnButton);
     leftButtons->addWidget(deleteColumnButton);
-
 }
 
 void View::linkButtons()
 {
+    //menu
+    menuBar->connect(file->actions()[0], SIGNAL(triggered()), controller, SLOT(newFile()));
+    menuBar->connect(file->actions()[1], SIGNAL(triggered()), controller, SLOT(loadDataFromFile()));
+    menuBar->connect(file->actions()[2], SIGNAL(triggered()), controller, SLOT(saveToFile()));
+    menuBar->connect(edit->actions()[0], SIGNAL(triggered()), controller, SLOT(clearData()));
+
+    //left area
     connect(loadDataButton, SIGNAL(clicked()), controller, SLOT(loadDataFromFile()));
     connect(saveDataButton, SIGNAL(clicked()), controller, SLOT(saveToFile()));
     connect(addRowButton, SIGNAL(clicked()), controller, SLOT(addRow()));
@@ -168,10 +141,11 @@ void View::linkButtons()
     connect(deleteRowButton, SIGNAL(clicked()), controller, SLOT(deleteRow()));
     connect(deleteColumnButton, SIGNAL(clicked()), controller, SLOT(deleteColumn()));
 
-    menuBar->connect(file->actions()[0], SIGNAL(triggered()), controller, SLOT(newFile()));
-    menuBar->connect(file->actions()[1], SIGNAL(triggered()), controller, SLOT(loadDataFromFile()));
-    menuBar->connect(file->actions()[2], SIGNAL(triggered()), controller, SLOT(saveToFile()));
-    menuBar->connect(edit->actions()[0], SIGNAL(triggered()), controller, SLOT(clearData()));    
+    //right area
+    connect(lineChart, SIGNAL(clicked()), controller, SLOT(lineData()));
+    connect(barChart, SIGNAL(clicked()), controller, SLOT(barData()));
+    connect(histogramChart, SIGNAL(clicked()), controller, SLOT(pieData()));
+    connect(closeChart, SIGNAL(clicked()), controller, SLOT(deleteChart()));
 }
 
 void View::connectNewTextBox(TextBox* tmp)
@@ -234,8 +208,8 @@ int View::showConfirmClear()
 
 void View::clean()
 {
-    for(int x = 0; x < controller->getDataMatrixWidth(); x++){
-        for(int y=0; y < controller->getDataMatrixHeigth(); y++){
+    for(unsigned int x = 0; x < controller->getDataMatrixWidth(); x++){
+        for(unsigned int y=0; y < controller->getDataMatrixHeigth(); y++){
             delete textBoxMatrix->at(x)->at(y);
         }
         textBoxMatrix->at(x)->clear();
@@ -245,7 +219,6 @@ void View::clean()
     textBoxMatrix->clear();
     textBoxTitles->clear();
 }
-
 
 void View::addRow()
 {
@@ -272,7 +245,8 @@ void View::addRow()
         tmpTitle->setPlaceholderText("column 0");
         tmpTitle->setObjectName("0,-1");
         if(controller->isNumeric(0)) tmpTitle->setStyleSheet("QLineEdit { background: rgba(237, 104, 162, 0.5);}");
-        else tmpTitle->setStyleSheet("QLineEdit { background: rgba(232, 227, 74, 0.75);}");
+        else
+            tmpTitle->setStyleSheet("QLineEdit { background: rgba(232, 227, 74, 0.75);}");
         textBoxTitles->append(tmpTitle); //adds new TextBox* for titles
         connectNewTextBox(tmpTitle);
         dataArea->addWidget(tmpTitle, width, 0);
@@ -306,16 +280,14 @@ void View::addColumn(bool isNumeric)
     textBoxMatrix->append(tmpArray); //adds new QVector<TextBox*>
 }
 
-
-
 void View::loadData(const Matrix* dataMatrix)   //called after clean, thus no need for checks on textBoxMatrix content
 {
-    for(int x=0; x < controller->getDataMatrixWidth(); x++){
+    for(unsigned int x=0; x < controller->getDataMatrixWidth(); x++){
         QVector<TextBox*>* tmpColumn = new QVector<TextBox*>;
         textBoxMatrix->append(tmpColumn);
         bool isNumeric = controller->isNumeric(x);
         if(isNumeric){
-            for(int y=0; y < controller->getDataMatrixHeigth(); y++){
+            for(unsigned int y=0; y < controller->getDataMatrixHeigth(); y++){
                 TextBox* tmp = new TextBox(x, y, true, scrollWidget, QString::number(static_cast<NumericData*>(dataMatrix->getDataAt(x,y))->getData())); //static cast is safe because of the previous dynamic cast
                 connectNewTextBox(tmp);
                 dataArea->addWidget(tmp, y, x);
@@ -323,7 +295,7 @@ void View::loadData(const Matrix* dataMatrix)   //called after clean, thus no ne
             }
         }
         else{
-            for(int y=0; y < controller->getDataMatrixHeigth(); y++){
+            for(unsigned int y=0; y < controller->getDataMatrixHeigth(); y++){
                 TextBox* tmp = new TextBox(x, y, false, scrollWidget, static_cast<TextData*>(dataMatrix->getDataAt(x,y))->getData()); //static cast is safe because of the previous dynamic cast
                 connectNewTextBox(tmp);
                 dataArea->addWidget(tmp, y, x);
@@ -342,4 +314,68 @@ void View::loadData(const Matrix* dataMatrix)   //called after clean, thus no ne
         dataArea->addWidget(tmpTitle,controller->getDataMatrixHeigth(), x);
     }
     dataMatrix->printDebug();
+}
+
+
+int View::showColumnSelectionDialogOptionalSingleText(QVector<int>* indexes)
+{
+    QStringList items;
+    int selectedIndex = 0;
+    for(unsigned int col = 0; col < controller->getDataMatrixWidth(); col++) if(indexes->contains(col)) items.append(QString::number(col+1) + " - " + textBoxTitles->at(col)->text());
+    bool ok;
+    QString selection= QInputDialog::getItem(this, tr("Chart creation"), tr("Select OPTIONAL text data column"), items, 0, false, &ok);
+    if(ok)
+        selectedIndex = (selection.mid(0, selection.indexOf(" "))).toInt();
+    return selectedIndex-1; //-1 because im adding one in the option string to make it more user friendly
+}
+
+
+int View::showColumnSelectionDialogNumeric(QVector<int>* indexes)
+{
+    QStringList items;
+    int selectedIndex = 0;
+    for(unsigned int col = 0; col < controller->getDataMatrixWidth(); col++) if(indexes->contains(col)) items.append(QString::number(col+1) + " - " + textBoxTitles->at(col)->text());
+    bool ok;
+    QString selection= QInputDialog::getItem(this, tr("Chart creation"), tr("Select a numeric data column"), items, 0, false, &ok);
+    if(ok)
+        selectedIndex = (selection.mid(0, selection.indexOf(" "))).toInt();
+    return selectedIndex-1; //-1 because im adding one in the option string to make it more user friendly
+}
+
+void View::drawChart(QChart* chart)
+{
+    closeChart->show();
+    lineChart->hide();
+    barChart->hide();
+    histogramChart->hide();
+    mainLayout->removeItem(createChartButtons);
+    chartView = new QChartView(chart);
+    chartView->setRenderHint(QPainter::Antialiasing);
+    chartViewer->addWidget(chartView);
+    mainLayout->addLayout(chartViewer);
+}
+
+void View::closeChartView()
+{
+    lineChart->show();
+    barChart->show();
+    histogramChart->show();
+    mainLayout->removeItem(chartViewer);
+    delete chartViewer->widget();
+    chartViewer->removeWidget(chartViewer->itemAt(1)->widget());
+    closeChart->hide();
+    delete chartView;
+    mainLayout->addLayout(createChartButtons);
+}
+
+
+QString View::showChartTitleSelector()
+{
+    bool ok;
+    QString title= QInputDialog::getText(this, tr("Chart creation"), tr("Insert a title for your chart"), QLineEdit::Normal, "New Chart", &ok);
+    if(ok)
+        return title;
+    else{
+        return "";
+    }
 }

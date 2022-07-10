@@ -32,6 +32,10 @@ public:
 
     QString getTitle(unsigned int =0) const;
     void updateTitle(QString, unsigned int);
+    unsigned int getNumberOfNumerics() const;
+    unsigned int getNumberOfTexts() const;
+    QVector<int>* getNumericDataIndexes() const;
+    QVector<int>* getTextDataIndexes() const;
 };
 
 #endif // MATRIX_H

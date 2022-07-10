@@ -1,9 +1,9 @@
 #include "textBox.h"
 
-TextBox::TextBox(int _x, int _y, bool isNumeric, QWidget* parent, QString text) : QLineEdit(text, parent), x(_x), y(_y) //forse si può fare usando le posizioni nella grid, se no bisogna aggiornarli ogni volta quando se ne eliminano alcuni
+TextBox::TextBox(int _x, int _y, bool _isNumeric, QWidget* parent, QString text) : QLineEdit(text, parent), x(_x), y(_y), isNumericText(_isNumeric)
 {
       connect(this, SIGNAL(textEdited(QString)), this, SLOT(cellEmitter(QString)));
-      if(isNumeric && text=="") setText("0");
+      if(isNumericText && text=="") setText("0");
 }
 
 TextBox::~TextBox()
@@ -17,8 +17,10 @@ void TextBox::cellEmitter(QString text)
     else emit updateValue(text, x, y);
 }
 
-unsigned int TextBox::getX() const {return x;}
-unsigned int TextBox::getY() const {return y;}
+int TextBox::getX() const {return x;}
+int TextBox::getY() const {return y;}
+
+bool TextBox::isNumeric() const{return isNumericText;}
 void TextBox::focusOutEvent(QFocusEvent *event)
 {
     QLineEdit::focusOutEvent(event);
@@ -38,7 +40,7 @@ void TextBox::focusInEvent(QFocusEvent *event)
 }
 
 //STATIC FIELDS AND FUNCTIONS
-QPair<unsigned int, unsigned int> TextBox::lastSelectedTextBox({0,0});
+QPair<int,int> TextBox::lastSelectedTextBox({0,0});
 bool TextBox::somethingWasSelected = false;
 
-QPair<unsigned int, unsigned int> TextBox::getLastSelectedTextBoxCoordinates(){return lastSelectedTextBox;}
+QPair<int, int> TextBox::getLastSelectedTextBoxCoordinates(){return lastSelectedTextBox;}

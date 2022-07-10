@@ -5,6 +5,7 @@
 
 #include "textBox.h"
 #include "matrix.h"
+#include "chart.h"
 
 #include <QHBoxLayout>
 #include <QVBoxLayout>
@@ -38,9 +39,10 @@ class View : public QWidget
 {
     Q_OBJECT
 
-private:
-    QVector<TextBox*>* textBoxTitles;
+private:   
     QVector<QVector<TextBox*>*>* textBoxMatrix;
+    QVector<TextBox*>* textBoxTitles;
+
     QMenuBar* menuBar;
     QMenu* file;
     QMenu* edit;
@@ -54,8 +56,6 @@ private:
     QVBoxLayout* leftArea;
     QScrollArea* dataAreaScroll;
     QWidget* scrollWidget;
-
-    QHBoxLayout* dataTitles;
     QGridLayout* dataArea;
     QHBoxLayout* leftButtons;
 
@@ -66,10 +66,22 @@ private:
     QPushButton* addColumnButton;
     QPushButton* deleteColumnButton;
 
+
+    //right layout
+    QVBoxLayout* createChartButtons;
+    QPushButton* lineChart;
+    QPushButton* barChart;
+    QPushButton* pieChart;
+
+    QVBoxLayout* chartViewer;
+    QChartView* chartView;
+    QPushButton* closeChart;
+
     void addMenus();
     void setUpLeftLayout();
     void linkButtons();
     void connectNewTextBox(TextBox* tmp);
+    void setUpRightLayout();
 
 public:
     View(QWidget *parent = nullptr);
@@ -88,6 +100,12 @@ public:
     void loadData(const Matrix* dataMatrix);
     void clean();
     int showConfirmClear();
+    int showColumnSelectionDialogOptionalSingleText(QVector<int>*);
+    int showColumnSelectionDialogNumeric(QVector<int>*);
+
+    void drawChart(QChart*);
+    void closeChartView();
+    QString showChartTitleSelector();
 signals:
     void senderPosition(unsigned int, unsigned int);
 };
