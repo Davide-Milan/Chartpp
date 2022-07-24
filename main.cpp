@@ -10,7 +10,7 @@
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-
+    a.setApplicationName(QString("Chart++"));
     Model m;
     View v;
     Controller c;

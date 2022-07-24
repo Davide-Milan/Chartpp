@@ -1,0 +1,17 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<!--
+    images provided by google fonts:
+        https://fonts.google.com/icons
+-->
+
+<qresource prefix="/">
+    <file>images/new_file.png</file>
+    <file>images/open_file.png</file>
+    <file>images/save.png</file>
+    <file>images/clear.png</file>
+    <file>images/info.png</file>
+    <file>images/line_chart.png</file>
+    <file>images/bar_chart.png</file>
+    <file>images/pie_chart.png</file>
+</qresource>
+</RCC>

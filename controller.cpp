@@ -121,7 +121,8 @@ void Controller::addRow()
 
 void Controller::deleteRow()
 {
-    if(!anyCellSelected(true)) return;
+    if(TextBox::getLastSelectedTextBoxCoordinates().second == -1) TextBox::somethingWasSelected = false;    //if the last selected TextBox is a title it will prevent it from deleting all the titles
+    if(!anyCellSelected(true)) return;    
 
     TextBox::somethingWasSelected = false;
     unsigned int size = getDataMatrixHeigth();

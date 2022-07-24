@@ -20,7 +20,7 @@ View::View(QWidget *parent)
 
     //styling
     setLayout(mainLayout);
-    mainLayout->setContentsMargins(10,0,10,10);
+    mainLayout->setContentsMargins(10,10,10,10);
 
 }
 
@@ -62,15 +62,15 @@ void View::addMenus()
     menuBar->addMenu(view);
     menuBar->addMenu(help);
 
-    file->addAction(new QAction("New file", file));
-    file->addAction(new QAction("Open file", file));
-    file->addAction(new QAction("Export", file));
-    file->addAction(new QAction("Close", file));
-    edit->addAction(new QAction("Clear all", edit));
-    view->addAction(new QAction("Line chart", view));
-    view->addAction(new QAction("Bar chart", view));
-    view->addAction(new QAction("Pie chart", view));
-    help->addAction(new QAction("GitHub repo", help));
+    file->addAction(new QAction(QIcon(":/images/new_file.png"), "New file", file));
+    file->addAction(new QAction(QIcon(":/images/open_file.png"), "Open file", file));
+    file->addAction(new QAction(QIcon(":/images/save.png"), "Export", file));
+    file->addAction(new QAction("Exit", file));
+    edit->addAction(new QAction(QIcon(":/images/clear.png"), "Clear all", edit));
+    view->addAction(new QAction(QIcon(":/images/line_chart.png"), "Line chart", view));
+    view->addAction(new QAction(QIcon(":/images/bar_chart.png"), "Bar chart", view));
+    view->addAction(new QAction(QIcon(":/images/pie_chart.png"), "Pie chart", view));
+    help->addAction(new QAction(QIcon(":/images/info.png"), "GitHub repo", help));
 
     menuBar->resize(4000,20);       //makes it as large as possible
     menuBar->connect(file->actions()[3], SIGNAL(triggered()), this, SLOT(close()));
@@ -121,9 +121,15 @@ void View::setUpLeftLayout()
 void View::setUpRightLayout()
 {
     //create all buttons
-    createLineChart = new QPushButton("Line chart", this);
-    createBarChart = new QPushButton("Bar chart", this);
-    createPieChart = new QPushButton("Pie chart", this);
+    createLineChart = new QPushButton(QIcon(":/images/line_chart.png"), "", this);
+    createLineChart->setFixedSize(100,100);
+    createLineChart->setIconSize(QSize(100,100));
+    createBarChart = new QPushButton(QIcon(":/images/bar_chart.png"), "", this);
+    createBarChart->setFixedSize(100,100);
+    createBarChart->setIconSize(QSize(100,100));
+    createPieChart = new QPushButton(QIcon(":/images/pie_chart.png"), "", this);
+    createPieChart->setFixedSize(100,100);
+    createPieChart->setIconSize(QSize(100,100));
     closeChart = new QPushButton("Close chart", this);
     closeChart->hide();
     closeChart->setFixedWidth(200);

@@ -32,11 +32,9 @@ void TextBox::focusInEvent(QFocusEvent *event)
 {
     QLineEdit::focusInEvent(event);
     lastSelectedTextBox = {x,y};
-    if(y != -1){
-        somethingWasSelected = true;
-        setStyleSheet("QLineEdit { background: rgba(32, 191, 227, 0.4); }");  //changes background color
-    }
-    else somethingWasSelected = false;
+    if(y != -1)
+        setStyleSheet("QLineEdit { background: rgba(32, 191, 227, 0.4); }");  //changes background color    
+    somethingWasSelected = true;
 }
 
 //STATIC FIELDS AND FUNCTIONS
