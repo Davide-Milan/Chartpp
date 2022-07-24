@@ -19,7 +19,6 @@ int main(int argc, char *argv[])
     c.setView(&v);
     v.setController(&c);
 
-
     v.setFixedSize(1000, 600);
     v.show();
     return a.exec();

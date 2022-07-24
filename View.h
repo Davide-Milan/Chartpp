@@ -16,22 +16,13 @@
 #include <QString>
 #include <QLabel>
 #include <QScrollBar>
-
-
 #include <QChartView>
 #include <QtCharts>
-#include <QAction>
 #include <QInputDialog>
 #include <QDialog>
-#include <QValidator>
-#include <QDialogButtonBox>
-#include <QColorDialog>
-#include <QFormLayout>
-#include <QComboBox>
 #include <QMessageBox>
 #include <QFileDialog>
 #include <QJsonDocument>
-#include <QCloseEvent>
 
 class Controller;
 
@@ -47,6 +38,7 @@ private:
     QMenu* file;
     QMenu* edit;
     QMenu* view;
+    QMenu* help;
 
     Controller* controller;
 
@@ -69,9 +61,9 @@ private:
 
     //right layout
     QVBoxLayout* createChartButtons;
-    QPushButton* lineChart;
-    QPushButton* barChart;
-    QPushButton* pieChart;
+    QPushButton* createLineChart;
+    QPushButton* createBarChart;
+    QPushButton* createPieChart;
 
     QVBoxLayout* chartViewer;
     QChartView* chartView;
@@ -88,21 +80,23 @@ public:
     ~View();
     void setController(Controller *);
 
+    //TEXTBOX GRID RELATED METHODS
     void addRow();
     void deleteRow(unsigned int);
     void addColumn(bool);
     void deleteColumn(unsigned int);
+    void loadData(const Matrix* dataMatrix);  //given a Matrix, genereates the TextBox grid and loads every cell with the right data from the Matrix.
+    void clean();  //resets the view
 
-    void addFirstCell();
-    QString showSelectNewColumnType();
-    QString showSaveFile();
-    QString showLoadFile();
-    void loadData(const Matrix* dataMatrix);
-    void clean();
-    int showConfirmClear();
-    int showColumnSelectionDialogOptionalSingleText(QVector<int>*);
-    int showColumnSelectionDialogNumeric(QVector<int>*);
+    //USER DIALOG INTERACTION METHODS
+    QString showSelectNewColumnType(); //input dialog to choose the type of data of the new column (Text or Numeric)
+    QString showSaveFile(); //file dialog to choose a JSON file to save data into
+    QString showLoadFile(); //file dialog to choose a JSON file to import data from
+    int showConfirmClear(); //message box dialog asking to confirm the removal of all data
+    int showColumnSelectionDialogOptionalSingleText(QVector<int>*, const QString&); //input dialog for asking to select a textData column, if needed by the type of chart selected
+    int showColumnSelectionDialogNumeric(QVector<int>*); //input dialog for asking to select a numericData column, not optional
 
+    //CHART RELATED METHODS
     void drawChart(QChart*);
     void closeChartView();
     QString showChartTitleSelector();

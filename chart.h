@@ -5,11 +5,16 @@
 #include <QChartView>
 #include <QChart>
 
+
+/**
+ * pure abstract base class (ABC) for charts representations allowing for polymorphic pointer behavior
+*/
+
 class Chart
 {
 public:
     Chart();
-    virtual ~Chart()=0;
+    virtual ~Chart() = 0;
     virtual QChart* draw() = 0;
 };
 

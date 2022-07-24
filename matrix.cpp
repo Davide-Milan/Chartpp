@@ -33,8 +33,6 @@ void Matrix::updateTitle(QString text, unsigned int col){titles[col] = text;}
 
 void Matrix::updateDataMatrixValue(QString text, unsigned int x, unsigned int y){dataMatrix.at(x)->at(y)->setData(text);}
 
-const QVector<QVector<Data *>*>* Matrix::getMatrixMemory() const {return &dataMatrix;}
-
 Data* Matrix::getDataAt(unsigned int x, unsigned int y) const{return dataMatrix.at(x)->at(y);}
 
 void Matrix::loadData(const QJsonArray& json)
@@ -135,6 +133,7 @@ void Matrix::deleteColumnMatrix(unsigned int col){
     titles.erase(titles.begin() + col);
 }
 
+
 unsigned int Matrix::getNumberOfNumerics() const
 {
     unsigned int count = 0;
@@ -155,7 +154,6 @@ unsigned int Matrix::getNumberOfTexts() const
     return count;
 }
 
-
 QVector<int>* Matrix::getNumericDataIndexes() const
 {
     QVector<int>* numericColumns = new QVector<int>;
@@ -166,6 +164,8 @@ QVector<int>* Matrix::getNumericDataIndexes() const
     }
     return numericColumns;
 }
+
+
 QVector<int>* Matrix::getTextDataIndexes() const
 {
     QVector<int>* textColumns = new QVector<int>;

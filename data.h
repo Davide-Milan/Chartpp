@@ -3,8 +3,9 @@
 
 #include <QString>
 
-//classe base astratta (pura(?))
-
+/**
+ * pure abstract base class (ABC) for data representations allowing for RTTI behavior using down casts to either numeric or text subtypes
+*/
 
 class Data
 { 
@@ -14,20 +15,4 @@ public:
     virtual void setData(QString) = 0;
 };
 
-#endif // DATA_H
-
-//old declaration using polymorphism
-//classe base astratta (pura(?))
-
-
-//class Data
-//{
-//public:
-//    Data();
-//    virtual ~Data();
-//    virtual void setData(QString) = 0;
-//    virtual QString getData(){}
-//    virtual double getData(bool = false){}    //fake bool argument that let's me use the same function signature for both derived classes
-//};
-
-
+#endif

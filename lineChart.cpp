@@ -16,7 +16,8 @@ LineChart::LineChart(QString _title, Matrix* dataSet, const QVector<int>& numeri
 
 LineChart::~LineChart()
 {
-
+    for(int x = 0; x < numericData.size(); x++)
+        delete numericData.at(x);
 }
 
 QChart* LineChart::draw()

@@ -24,33 +24,24 @@ View::View(QWidget *parent)
 
 }
 
+
+//only needs to delete the textBox QVectors and their content and the controller, because everything else are QWidgets, whose deletion is handled by the framework already
 View::~View()
 {
+    for(int x = 0; x < textBoxMatrix->size(); x++){
+        for(int y=0; y < textBoxMatrix->at(0)->size(); y++){
+            delete textBoxMatrix->at(x)->at(y);
+        }
+        delete textBoxMatrix->at(x);
+        delete textBoxTitles->at(x);
+        textBoxMatrix->at(x)->clear();
+    }
+    textBoxMatrix->clear();
+    textBoxTitles->clear();
+
+    delete textBoxMatrix;
+    delete textBoxTitles;
 }
-
-void View::setUpRightLayout()
-{
-    //create all buttons
-    lineChart = new QPushButton("Line Chart", this);
-    barChart = new QPushButton("Bar Chart", this);
-    pieChart = new QPushButton("Pie Chart", this);
-    closeChart = new QPushButton("Close chart", this);
-    closeChart->hide();
-    closeChart->setFixedWidth(200);
-
-    //create layout + basic styling
-    createChartButtons = new QVBoxLayout();
-    createChartButtons->setContentsMargins(0,0,0,0);
-    chartViewer = new QVBoxLayout();
-
-    //setup widgets in layouts
-    createChartButtons->addWidget(lineChart);
-    createChartButtons->addWidget(barChart);
-    createChartButtons->addWidget(histogramChart);
-    chartViewer->addWidget(closeChart);
-    chartViewer->setAlignment(closeChart, Qt::AlignCenter);
-}
-
 
 void View::setController(Controller* c)
 {
@@ -64,20 +55,22 @@ void View::addMenus()
     file = new QMenu("File", menuBar);
     edit = new QMenu("Edit", menuBar);
     view = new QMenu("View", menuBar);
+    help = new QMenu("Help", menuBar);
 
     menuBar->addMenu(file);
     menuBar->addMenu(edit);
     menuBar->addMenu(view);
+    menuBar->addMenu(help);
 
     file->addAction(new QAction("New file", file));
     file->addAction(new QAction("Open file", file));
     file->addAction(new QAction("Export", file));
     file->addAction(new QAction("Close", file));
     edit->addAction(new QAction("Clear all", edit));
-//    edit->addAction(new QAction("Undo", edit));
-//    edit->addAction(new QAction("Redo", edit));
-    view->addAction(new QAction("Zoom in", view));
-    view->addAction(new QAction("Zoom out", view));
+    view->addAction(new QAction("Line chart", view));
+    view->addAction(new QAction("Bar chart", view));
+    view->addAction(new QAction("Pie chart", view));
+    help->addAction(new QAction("GitHub repo", help));
 
     menuBar->resize(4000,20);       //makes it as large as possible
     menuBar->connect(file->actions()[3], SIGNAL(triggered()), this, SLOT(close()));
@@ -125,6 +118,30 @@ void View::setUpLeftLayout()
     leftButtons->addWidget(deleteColumnButton);
 }
 
+void View::setUpRightLayout()
+{
+    //create all buttons
+    createLineChart = new QPushButton("Line chart", this);
+    createBarChart = new QPushButton("Bar chart", this);
+    createPieChart = new QPushButton("Pie chart", this);
+    closeChart = new QPushButton("Close chart", this);
+    closeChart->hide();
+    closeChart->setFixedWidth(200);
+
+    //create layout + basic styling
+    createChartButtons = new QVBoxLayout();
+    createChartButtons->setContentsMargins(0,0,0,0);
+    chartViewer = new QVBoxLayout();
+
+    //setup widgets in layouts
+    createChartButtons->addWidget(createLineChart);
+    createChartButtons->addWidget(createBarChart);
+    createChartButtons->addWidget(createPieChart);
+    chartViewer->addWidget(closeChart);
+    chartViewer->setAlignment(closeChart, Qt::AlignCenter);
+}
+
+//connects default buttons to their controller slots
 void View::linkButtons()
 {
     //menu
@@ -132,6 +149,10 @@ void View::linkButtons()
     menuBar->connect(file->actions()[1], SIGNAL(triggered()), controller, SLOT(loadDataFromFile()));
     menuBar->connect(file->actions()[2], SIGNAL(triggered()), controller, SLOT(saveToFile()));
     menuBar->connect(edit->actions()[0], SIGNAL(triggered()), controller, SLOT(clearData()));
+    menuBar->connect(view->actions()[0], SIGNAL(triggered()), controller, SLOT(lineChart()));
+    menuBar->connect(view->actions()[1], SIGNAL(triggered()), controller, SLOT(barChart()));
+    menuBar->connect(view->actions()[2], SIGNAL(triggered()), controller, SLOT(pieChart()));
+    menuBar->connect(help->actions()[0], SIGNAL(triggered()), controller, SLOT(openRepositoryLink()));
 
     //left area
     connect(loadDataButton, SIGNAL(clicked()), controller, SLOT(loadDataFromFile()));
@@ -142,12 +163,13 @@ void View::linkButtons()
     connect(deleteColumnButton, SIGNAL(clicked()), controller, SLOT(deleteColumn()));
 
     //right area
-    connect(lineChart, SIGNAL(clicked()), controller, SLOT(lineData()));
-    connect(barChart, SIGNAL(clicked()), controller, SLOT(barData()));
-    connect(histogramChart, SIGNAL(clicked()), controller, SLOT(pieData()));
+    connect(createLineChart, SIGNAL(clicked()), controller, SLOT(lineChart()));
+    connect(createBarChart, SIGNAL(clicked()), controller, SLOT(barChart()));
+    connect(createPieChart, SIGNAL(clicked()), controller, SLOT(pieChart()));
     connect(closeChart, SIGNAL(clicked()), controller, SLOT(deleteChart()));
 }
 
+//connects textbox to their corresponding controller slot, distinguishing between titles and data textboxes
 void View::connectNewTextBox(TextBox* tmp)
 {
     if(tmp->getY() == -1) connect(tmp, SIGNAL(updateTitle(QString, unsigned int)), controller, SLOT(updateTitle(QString, unsigned int)));
@@ -206,6 +228,45 @@ int View::showConfirmClear()
     return msgBox.exec();
 }
 
+
+int View::showColumnSelectionDialogOptionalSingleText(QVector<int>* indexes, const QString& msg)
+{
+    QStringList items;
+    for(unsigned int col = 0; col < controller->getDataMatrixWidth(); col++) if(indexes->contains(col)) items.append(QString::number(col+1) + " - " + textBoxTitles->at(col)->text());
+    bool ok;
+    QString selection= QInputDialog::getItem(this, tr("Chart creation"), msg, items, 0, false, &ok);
+    if(ok)
+        return (selection.mid(0, selection.indexOf(" "))).toInt() - 1;  //-1 because im adding one in the option string to make it more user friendly
+    else
+        throw bool(false);
+}
+
+
+int View::showColumnSelectionDialogNumeric(QVector<int>* indexes)
+{
+    QStringList items;
+    for(unsigned int col = 0; col < controller->getDataMatrixWidth(); col++) if(indexes->contains(col)) items.append(QString::number(col+1) + " - " + textBoxTitles->at(col)->text());
+    bool ok;
+    QString selection= QInputDialog::getItem(this, tr("Chart creation"), tr("Select a numeric data column"), items, 0, false, &ok);
+    if(ok)
+        return (selection.mid(0, selection.indexOf(" "))).toInt() - 1;  //-1 because im adding one in the option string to make it more user friendly
+    else
+        throw bool(false);
+}
+
+//dialog to input title for chart
+QString View::showChartTitleSelector()
+{
+    bool ok;
+    QString title= QInputDialog::getText(this, tr("Chart creation"), tr("Insert a title for your chart"), QLineEdit::Normal, "New Chart", &ok);
+    if(ok)
+        return title;
+    else{
+        throw bool(false);
+    }
+}
+
+//resets the table view
 void View::clean()
 {
     for(unsigned int x = 0; x < controller->getDataMatrixWidth(); x++){
@@ -218,6 +279,7 @@ void View::clean()
     }
     textBoxMatrix->clear();
     textBoxTitles->clear();
+    closeChartView();
 }
 
 void View::addRow()
@@ -280,7 +342,8 @@ void View::addColumn(bool isNumeric)
     textBoxMatrix->append(tmpArray); //adds new QVector<TextBox*>
 }
 
-void View::loadData(const Matrix* dataMatrix)   //called after clean, thus no need for checks on textBoxMatrix content
+//called after clean, thus no need for checks on textBoxMatrix content
+void View::loadData(const Matrix* dataMatrix)
 {
     for(unsigned int x=0; x < controller->getDataMatrixWidth(); x++){
         QVector<TextBox*>* tmpColumn = new QVector<TextBox*>;
@@ -313,41 +376,16 @@ void View::loadData(const Matrix* dataMatrix)   //called after clean, thus no ne
         textBoxTitles->append(tmpTitle); //adds new TextBox* for titles
         dataArea->addWidget(tmpTitle,controller->getDataMatrixHeigth(), x);
     }
-    dataMatrix->printDebug();
 }
 
 
-int View::showColumnSelectionDialogOptionalSingleText(QVector<int>* indexes)
-{
-    QStringList items;
-    int selectedIndex = 0;
-    for(unsigned int col = 0; col < controller->getDataMatrixWidth(); col++) if(indexes->contains(col)) items.append(QString::number(col+1) + " - " + textBoxTitles->at(col)->text());
-    bool ok;
-    QString selection= QInputDialog::getItem(this, tr("Chart creation"), tr("Select OPTIONAL text data column"), items, 0, false, &ok);
-    if(ok)
-        selectedIndex = (selection.mid(0, selection.indexOf(" "))).toInt();
-    return selectedIndex-1; //-1 because im adding one in the option string to make it more user friendly
-}
-
-
-int View::showColumnSelectionDialogNumeric(QVector<int>* indexes)
-{
-    QStringList items;
-    int selectedIndex = 0;
-    for(unsigned int col = 0; col < controller->getDataMatrixWidth(); col++) if(indexes->contains(col)) items.append(QString::number(col+1) + " - " + textBoxTitles->at(col)->text());
-    bool ok;
-    QString selection= QInputDialog::getItem(this, tr("Chart creation"), tr("Select a numeric data column"), items, 0, false, &ok);
-    if(ok)
-        selectedIndex = (selection.mid(0, selection.indexOf(" "))).toInt();
-    return selectedIndex-1; //-1 because im adding one in the option string to make it more user friendly
-}
-
+//draws chart
 void View::drawChart(QChart* chart)
 {
     closeChart->show();
-    lineChart->hide();
-    barChart->hide();
-    histogramChart->hide();
+    createLineChart->hide();
+    createBarChart->hide();
+    createPieChart->hide();
     mainLayout->removeItem(createChartButtons);
     chartView = new QChartView(chart);
     chartView->setRenderHint(QPainter::Antialiasing);
@@ -355,27 +393,18 @@ void View::drawChart(QChart* chart)
     mainLayout->addLayout(chartViewer);
 }
 
+//closes and deletes chart view
 void View::closeChartView()
 {
-    lineChart->show();
-    barChart->show();
-    histogramChart->show();
+    if(chartView != nullptr && chartViewer->parent() == mainLayout){
+    createLineChart->show();
+    createBarChart->show();
+    createPieChart->show();
     mainLayout->removeItem(chartViewer);
-    delete chartViewer->widget();
-    chartViewer->removeWidget(chartViewer->itemAt(1)->widget());
+    chartViewer->removeWidget(chartView);
     closeChart->hide();
     delete chartView;
+    chartView = nullptr;
     mainLayout->addLayout(createChartButtons);
-}
-
-
-QString View::showChartTitleSelector()
-{
-    bool ok;
-    QString title= QInputDialog::getText(this, tr("Chart creation"), tr("Insert a title for your chart"), QLineEdit::Normal, "New Chart", &ok);
-    if(ok)
-        return title;
-    else{
-        return "";
     }
 }

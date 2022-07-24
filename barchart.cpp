@@ -19,7 +19,8 @@ BarChart::BarChart(QString _title, Matrix* dataSet, const QVector<int>& numericI
 
 BarChart::~BarChart()
 {
-
+    for(int x = 0; x < numericData.size(); x++)
+        delete numericData.at(x);
 }
 
 QChart* BarChart::draw()

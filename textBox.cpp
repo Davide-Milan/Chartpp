@@ -24,7 +24,7 @@ bool TextBox::isNumeric() const{return isNumericText;}
 void TextBox::focusOutEvent(QFocusEvent *event)
 {
     QLineEdit::focusOutEvent(event);
-    if(y != -1)setStyleSheet("QLineEdit { background: rgb(255, 255, 255); }");
+    if(y != -1)setStyleSheet("QLineEdit { background: rgb(255, 255, 255); }");  //changes background color
 }
 
 
@@ -34,13 +34,13 @@ void TextBox::focusInEvent(QFocusEvent *event)
     lastSelectedTextBox = {x,y};
     if(y != -1){
         somethingWasSelected = true;
-        setStyleSheet("QLineEdit { background: rgba(32, 191, 227, 0.4); }");
+        setStyleSheet("QLineEdit { background: rgba(32, 191, 227, 0.4); }");  //changes background color
     }
     else somethingWasSelected = false;
 }
 
 //STATIC FIELDS AND FUNCTIONS
-QPair<int,int> TextBox::lastSelectedTextBox({0,0});
-bool TextBox::somethingWasSelected = false;
+QPair<int,int> TextBox::lastSelectedTextBox({0,0}); //static definition
+bool TextBox::somethingWasSelected = false;         //static definition
 
 QPair<int, int> TextBox::getLastSelectedTextBoxCoordinates(){return lastSelectedTextBox;}

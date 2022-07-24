@@ -5,6 +5,10 @@ Controller::Controller(QObject *parent) : QObject{parent}
 
 }
 
+Controller::~Controller()
+{
+}
+
 void Controller::setModel(Model *m) {model = m;}
 
 void Controller::setView(View *v) { view = v;}
@@ -15,60 +19,12 @@ unsigned int Controller::getDataMatrixHeigth() const {return model->getDataMatri
 
 Matrix *Controller::getDataMatrix() const {return model->getMatrix();}
 
+
 void Controller::updateValue(QString text, unsigned int x, unsigned int y){model->updateDataMatrixValue(text, x, y);}
+
 
 void Controller::updateTitle(QString text, unsigned int x){model->updateTitle(text, x);}
 
-void Controller::write(QJsonArray& jObj) const
-{
-    const QVector<QVector<Data*>*> * data = model->getData();
-    for(int x = 0; x < data->size(); x++){
-        QJsonObject column;
-        (dynamic_cast<NumericData*>(data->at(x)->at(0))) ? column["type"] = "Numeric" : column["type"] = "Text";
-        QJsonArray dataArray;
-        NumericData* tmp = dynamic_cast<NumericData*>(data->at(x)->at(0));
-        if(tmp){
-            for(int y = 0; y < data->at(x)->size(); y++)
-                dataArray.append(static_cast<NumericData*>(data->at(x)->at(y))->getData());
-        }
-        else{
-            TextData* tmp = dynamic_cast<TextData*>(data->at(x)->at(0));
-            if(tmp)
-                for(int y = 0; y < data->at(x)->size(); y++)
-                    dataArray.append(static_cast<TextData*>(data->at(x)->at(y))->getData());
-        }
-        column["title"] = model->getColumnTitle(x);
-        column["data"] = dataArray;
-        jObj.append(column);
-    }
-}
-
-bool Controller::saveToFile() const
-{
-    TextBox::somethingWasSelected = false;
-    try {
-        QString fileName = view->showSaveFile();
-        QFile saveFile(fileName);
-        if (!saveFile.open(QIODevice::WriteOnly)) {
-            throw std::runtime_error("Impossibile aprire il file.");
-        }
-        QJsonArray sessionObject;
-        write(sessionObject);
-        saveFile.write(QJsonDocument(sessionObject).toJson());
-        return true;
-    }  catch (std::runtime_error& e) {
-        e.what();
-        return false;
-    }
-}
-
-void Controller::read(const QJsonArray& json)
-{
-    view->clean();
-    model->clean();
-    model->loadData(json);
-    view->loadData(model->getMatrix());
-}
 
 void Controller::loadDataFromFile()
 {
@@ -81,9 +37,27 @@ void Controller::loadDataFromFile()
         }
         QJsonDocument sessionDocument = QJsonDocument::fromJson(file.readAll());
         file.close();
-        read(sessionDocument.array());
+
+        view->clean();
+        model->clean();
+        model->loadData(sessionDocument.array());
+        view->loadData(model->getMatrix());
     }catch (std::runtime_error& e) {
         e.what();
+    }
+}
+
+
+bool Controller::saveToFile() const
+{
+    TextBox::somethingWasSelected = false;
+    try {
+        QString fileName = view->showSaveFile();
+        model->writeFile(fileName);
+        return true;
+    }  catch (std::runtime_error& e) {
+        e.what();
+        return false;
     }
 }
 
@@ -110,7 +84,9 @@ void Controller::clearData()
     }
 }
 
+
 void Controller::newFile(){clearData();}
+
 
 bool Controller::anyCellSelected(bool row)
 {
@@ -125,9 +101,11 @@ bool Controller::anyCellSelected(bool row)
 
 bool Controller::isNumeric(unsigned int col) const{return model->isNumeric(col);}
 
+
+//SLOTS
 void Controller::addRow()
-{    
-    int width = model->getDataMatrixWidth();
+{
+    int width = getDataMatrixWidth();
 
     bool isNumeric = false;
     if(width == 0){
@@ -167,94 +145,35 @@ void Controller::addColumn()
     view->addColumn(isNumeric);
 }
 
-void Controller::deleteColumn()
+void Controller::lineChart()
 {
-    if(!anyCellSelected(false)) return;
-
-    TextBox::somethingWasSelected = false;
-    unsigned int size = getDataMatrixWidth();    
-    if (size > 0){
-        unsigned int col = TextBox::getLastSelectedTextBoxCoordinates().first;
-        view->clean();
-        model->deleteColumnData(col);
-        view->loadData(getDataMatrix());
-    }
-}
-
-void Controller::deleteChart()
-{
-    view->closeChartView();
-    delete model->getChart();
-}
-
-//void Controller::lineData()
-//{
-//    if(getDataMatrixWidth() < 1){
-//        QMessageBox msgBox;
-//        msgBox.setText("There's no data to select from");
-//        msgBox.exec();
-//    }
-//    if(model->getNumberOfNumerics() < 1){
-//        QMessageBox msgBox;
-//        msgBox.setText("Insert at least one numeric column first");
-//        msgBox.exec();
-//    }
-//    else{
-//        QString title = view->showChartTitleSelector();
-//        int chosenTextIndex = -1;
-//        QVector<int> chosenNumericIndexes;
-//        if(model->getNumberOfTexts() > 0){
-//            QVector<int>* textDataIndexes = model->getTextDataIndexes();
-//            chosenTextIndex = view->showColumnSelectionDialogOptionalSingleText(textDataIndexes);
-//            delete textDataIndexes;
-//        }
-//        QVector<int>* numericDataIndexesLeft = model->getNumericDataIndexes();
-//        bool choose = true;
-//        while(choose){
-//            if(numericDataIndexesLeft->size() > 0){
-//                int numericIndex = view->showColumnSelectionDialogNumeric(numericDataIndexesLeft);
-//                if(numericIndex >= 0){
-//                    chosenNumericIndexes.append(numericIndex);
-//                    numericDataIndexesLeft->erase(numericDataIndexesLeft->begin() + numericDataIndexesLeft->indexOf(numericIndex));
-//                }
-//                else choose = false;
-//            }
-//            else choose = false;
-//        }
-//        delete numericDataIndexesLeft;
-
-//        if(chosenNumericIndexes.size() < 1){
-//            QMessageBox msgBox;
-//            msgBox.setText("No data was selected, try again");
-//            msgBox.exec();
-//        }
-//        else{
-//            view->drawChart((model->createLineChart(title, chosenNumericIndexes,chosenTextIndex))->draw());
-//        }
-//    }
-//}
-
-
-void Controller::lineData()
-{
-    if(getDataMatrixWidth() < 1){
-        QMessageBox msgBox;
-        msgBox.setText("There's no data to select from");
-        msgBox.exec();
-    }
+    dataIsEmpty();
     if(model->getNumberOfNumerics() < 1){
         QMessageBox msgBox;
         msgBox.setText("Insert at least one numeric column first");
         msgBox.exec();
     }
     else{
-        QString title = view->showChartTitleSelector();
+        QString title;
+        try{
+            title = view->showChartTitleSelector();
+        }
+        catch(bool){ //if the dialog for title selection is closed it will interrupt the method
+            return;
+        }
+
         QVector<int> chosenNumericIndexes;
         QVector<int>* numericDataIndexesLeft = model->getNumericDataIndexes();
         bool choose = true;
         while(choose){
             if(numericDataIndexesLeft->size() > 0){
-                int numericIndex = view->showColumnSelectionDialogNumeric(numericDataIndexesLeft);
+                int numericIndex;
+                try{
+                    numericIndex = view->showColumnSelectionDialogNumeric(numericDataIndexesLeft);
+                }
+                catch(bool){
+                    return;
+                }
                 if(numericIndex >= 0){
                     chosenNumericIndexes.append(numericIndex);
                     numericDataIndexesLeft->erase(numericDataIndexesLeft->begin() + numericDataIndexesLeft->indexOf(numericIndex));
@@ -276,32 +195,44 @@ void Controller::lineData()
     }
 }
 
-void Controller::barData()
+void Controller::barChart()
 {
-    if(getDataMatrixWidth() < 1){
-        QMessageBox msgBox;
-        msgBox.setText("There's no data to select from");
-        msgBox.exec();
-    }
+    dataIsEmpty();
     if(model->getNumberOfNumerics() < 1){
         QMessageBox msgBox;
         msgBox.setText("Insert at least one numeric column first");
         msgBox.exec();
     }
     else{
-        QString title = view->showChartTitleSelector();
+        QString title;
+        try{
+            title = view->showChartTitleSelector();
+        }
+        catch(bool){
+            return;
+        }
         int chosenTextIndex = -1;
         QVector<int> chosenNumericIndexes;
         if(model->getNumberOfTexts() > 0){
             QVector<int>* textDataIndexes = model->getTextDataIndexes();
-            chosenTextIndex = view->showColumnSelectionDialogOptionalSingleText(textDataIndexes);
+            try{
+                chosenTextIndex = view->showColumnSelectionDialogOptionalSingleText(textDataIndexes, tr("Select an OPTIONAL text data column"));
+            }
+            catch(bool){    //nothing happens beacause the text column is optional in this chart
+            }
             delete textDataIndexes;
         }
         QVector<int>* numericDataIndexesLeft = model->getNumericDataIndexes();
         bool choose = true;
         while(choose){
             if(numericDataIndexesLeft->size() > 0){
-                int numericIndex = view->showColumnSelectionDialogNumeric(numericDataIndexesLeft);
+                int numericIndex;
+                try{
+                    numericIndex = view->showColumnSelectionDialogNumeric(numericDataIndexesLeft);
+                }
+                catch(bool){
+                    return;
+                }
                 if(numericIndex >= 0){
                     chosenNumericIndexes.append(numericIndex);
                     numericDataIndexesLeft->erase(numericDataIndexesLeft->begin() + numericDataIndexesLeft->indexOf(numericIndex));
@@ -320,38 +251,98 @@ void Controller::barData()
         else{
             view->drawChart((model->createBarChart(title, chosenNumericIndexes, chosenTextIndex))->draw());
         }
+
     }
 }
 
-
-void Controller::pieData()
+bool Controller::dataIsEmpty()
 {
+    TextBox::somethingWasSelected = false;
     if(getDataMatrixWidth() < 1){
         QMessageBox msgBox;
         msgBox.setText("There's no data to select from");
         msgBox.exec();
+        return true;
     }
-    if(model->getNumberOfNumerics() < 1){
+    return false;
+}
+
+void Controller::pieChart()
+{   
+    if(dataIsEmpty()){
         QMessageBox msgBox;
-        msgBox.setText("Insert at least one numeric column first");
+        msgBox.setText("Insert at least one column of any type first");
         msgBox.exec();
     }
     else{
-        QString title = view->showChartTitleSelector();
+        QString title;
+        try{
+            title = view->showChartTitleSelector();
+        }
+        catch(bool){
+            return;
+        }
         int chosenTextIndex = -1;
         if(model->getNumberOfTexts() > 0){
             QVector<int>* textDataIndexes = model->getTextDataIndexes();
-            chosenTextIndex = view->showColumnSelectionDialogOptionalSingleText(textDataIndexes);
+            try{
+                chosenTextIndex = view->showColumnSelectionDialogOptionalSingleText(textDataIndexes, tr("Select one text column"));
+            }
+            catch(bool){
+            }
             delete textDataIndexes;
         }
-        int numericIndex = view->showColumnSelectionDialogNumeric(model->getNumericDataIndexes());
-        if(numericIndex < 0){
-            QMessageBox msgBox;
-            msgBox.setText("No data was selected, try again");
-            msgBox.exec();
+        int numericIndex = -1;
+        if(model->getNumberOfNumerics() > 0){
+            try{
+                numericIndex = view->showColumnSelectionDialogNumeric(model->getNumericDataIndexes());
+            }
+            catch(bool){
+            }
         }
-        else{
+        if(numericIndex >= 0 || chosenTextIndex >= 0)
             view->drawChart((model->createPieChart(title, numericIndex, chosenTextIndex))->draw());
+        else{
+                QMessageBox msgBox;
+                msgBox.setText("No data was selected, try again");
+                msgBox.exec();
         }
+    }
+}
+
+void Controller::deleteColumn()
+{
+    if(!anyCellSelected(false)) return;
+
+    TextBox::somethingWasSelected = false;
+    unsigned int size = getDataMatrixWidth();
+    if (size > 0){
+        unsigned int col = TextBox::getLastSelectedTextBoxCoordinates().first;
+        view->clean();
+        model->deleteColumnData(col);
+        view->loadData(getDataMatrix());
+    }
+}
+
+void Controller::deleteChart()
+{
+    view->closeChartView();
+    model->deleteChart();
+}
+
+bool Controller::openRepositoryLink()
+{
+    try{
+        bool ok = QDesktopServices::openUrl(QUrl("https://github.com/Davide-Milan/Chartpp", QUrl::TolerantMode));
+        if(!ok)
+            throw bool(false);
+        else
+            return true;
+    }
+    catch(bool){
+        QMessageBox msgBox;
+        msgBox.setText("Something went wrong, we couldn't open the GitHub repository on a browser");
+        msgBox.exec();
+        return false;
     }
 }
