@@ -2,7 +2,6 @@
 #define CHART_H
 
 #include <QtCharts>
-#include <QChartView>
 #include <QChart>
 
 

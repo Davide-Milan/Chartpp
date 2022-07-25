@@ -59,29 +59,29 @@ bool Matrix::isNumeric(unsigned int col) const
 }
 
 
-void Matrix::printDebug() const
-{
-    for(unsigned int y = 0; y < getDataMatrixHeigth(); y++){
-        for(unsigned int x = 0; x < getDataMatrixWidth(); x++){
-            QString aux;
-            if(dynamic_cast<NumericData*>(getDataAt(x))){
-                aux = (QString::number(static_cast<NumericData*>(getDataAt(x,y))->getData()));
-            }
-            else{
-                aux = static_cast<TextData*>(getDataAt(x,y))->getData();
-            }
-            QTextStream(stdout) << aux << "       ";
-        }
-        QTextStream(stdout) << "" << endl;
-    }
-    for(unsigned int x = 0; x < getDataMatrixWidth(); x++){
-        QTextStream(stdout) << getTitle(x) + "       ";
-    }
-     QTextStream(stdout) << "" << endl;
-}
+//void Matrix::printDebug() const
+//{
+//    for(unsigned int y = 0; y < getDataMatrixHeigth(); y++){
+//        for(unsigned int x = 0; x < getDataMatrixWidth(); x++){
+//            QString aux;
+//            if(dynamic_cast<NumericData*>(getDataAt(x))){
+//                aux = (QString::number(static_cast<NumericData*>(getDataAt(x,y))->getData()));
+//            }
+//            else{
+//                aux = static_cast<TextData*>(getDataAt(x,y))->getData();
+//            }
+//            QTextStream(stdout) << aux << "       ";
+//        }
+//        QTextStream(stdout) << "" << endl;
+//    }
+//    for(unsigned int x = 0; x < getDataMatrixWidth(); x++){
+//        QTextStream(stdout) << getTitle(x) + "       ";
+//    }
+//     QTextStream(stdout) << "" << endl;
+//}
 
 void Matrix::addRowMatrix(){
-    for(int x = 0; x < getDataMatrixWidth(); x++){
+    for(unsigned int x = 0; x < getDataMatrixWidth(); x++){
         if(isNumeric(x))
             dataMatrix.at(x)->append(new NumericData);
         else
@@ -91,12 +91,12 @@ void Matrix::addRowMatrix(){
 
 void Matrix::deleteRowMatrix(unsigned int row)
 {
-    for(unsigned int x = 0; x < getDataMatrixWidth(); x++){
+    for(unsigned int x = 0; x < getDataMatrixWidth(); x++){ //removes the data from the selected row
         Data* tmp = dataMatrix.at(x)->at(row);
-        delete tmp; //qua crasha??
-        dataMatrix.at(x)->erase(dataMatrix.at(x)->begin() + row);
+        delete tmp;
+        dataMatrix.at(x)->erase(dataMatrix.at(x)->begin() + row);   //this automatically reallocates all the data in the following rows to keep the Matrix compact
     }
-    if(dataMatrix.at(0)->isEmpty()){
+    if(dataMatrix.at(0)->isEmpty()){ //handles the final removal of all columns
         for(int x = getDataMatrixWidth()-1; x >= 0; x--){
             deleteColumnMatrix(x);
         }

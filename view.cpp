@@ -297,7 +297,7 @@ void View::addRow()
     int y = controller->getDataMatrixHeigth() - 1;
     for(unsigned int x = 0; x < width; x++){
         bool isNumeric = controller->isNumeric(x);
-        if(y>0){    //moves title cell down one row
+        if(y>0){    //moves title cell down one row to keep on bottom of the columns
             QWidget* aux = dataArea->itemAtPosition(y,x)->widget();
             dataArea->removeWidget(aux);
             dataArea->addWidget(aux,y+1,x);
@@ -354,23 +354,17 @@ void View::loadData(const Matrix* dataMatrix)
     for(unsigned int x=0; x < controller->getDataMatrixWidth(); x++){
         QVector<TextBox*>* tmpColumn = new QVector<TextBox*>;
         textBoxMatrix->append(tmpColumn);
-        bool isNumeric = controller->isNumeric(x);
-        if(isNumeric){
-            for(unsigned int y=0; y < controller->getDataMatrixHeigth(); y++){
-                TextBox* tmp = new TextBox(x, y, true, scrollWidget, QString::number(static_cast<NumericData*>(dataMatrix->getDataAt(x,y))->getData())); //static cast is safe because of the previous dynamic cast
-                connectNewTextBox(tmp);
-                dataArea->addWidget(tmp, y, x);
-                tmpColumn->append(tmp);
-            }
+        bool isNumeric = controller->isNumeric(x);        
+        for(unsigned int y=0; y < controller->getDataMatrixHeigth(); y++){
+            TextBox* tmp;
+            if(isNumeric)
+                tmp = new TextBox(x, y, true, scrollWidget, QString::number(static_cast<NumericData*>(dataMatrix->getDataAt(x,y))->getData())); //static cast is safe because of the previous dynamic cast
+            else
+                tmp = new TextBox(x, y, false, scrollWidget, static_cast<TextData*>(dataMatrix->getDataAt(x,y))->getData()); //static cast is safe because of the previous dynamic cast
+            connectNewTextBox(tmp);
+            dataArea->addWidget(tmp, y, x);
+            tmpColumn->append(tmp);
         }
-        else{
-            for(unsigned int y=0; y < controller->getDataMatrixHeigth(); y++){
-                TextBox* tmp = new TextBox(x, y, false, scrollWidget, static_cast<TextData*>(dataMatrix->getDataAt(x,y))->getData()); //static cast is safe because of the previous dynamic cast
-                connectNewTextBox(tmp);
-                dataArea->addWidget(tmp, y, x);
-                tmpColumn->append(tmp);
-            }
-        }        
         TextBox* tmpTitle = new TextBox(x,-1, false, scrollWidget, dataMatrix->getTitle(x));
         tmpTitle->setPlaceholderText("column " + QString::number(x));
         tmpTitle->setObjectName(QString::number(x) + ",-1");
@@ -385,7 +379,7 @@ void View::loadData(const Matrix* dataMatrix)
 }
 
 
-//draws chart
+//hides creation buttons and shows the chart created by the model
 void View::drawChart(QChart* chart)
 {
     closeChart->show();
@@ -397,9 +391,10 @@ void View::drawChart(QChart* chart)
     chartView->setRenderHint(QPainter::Antialiasing);
     chartViewer->addWidget(chartView);
     mainLayout->addLayout(chartViewer);
+    view->setDisabled(true);    //disables view menu to prevent multiple graphs from being displayed
 }
 
-//closes and deletes chart view
+//closes and deletes chart view, shows chart creation buttons
 void View::closeChartView()
 {
     if(chartView != nullptr && chartViewer->parent() == mainLayout){
@@ -412,5 +407,6 @@ void View::closeChartView()
     delete chartView;
     chartView = nullptr;
     mainLayout->addLayout(createChartButtons);
+    view->setDisabled(false);   //re-enables view menu
     }
 }

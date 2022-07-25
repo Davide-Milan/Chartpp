@@ -14,8 +14,6 @@
 #include <QMenuBar>
 #include <QPushButton>
 #include <QString>
-#include <QLabel>
-#include <QScrollBar>
 #include <QChartView>
 #include <QtCharts>
 #include <QInputDialog>

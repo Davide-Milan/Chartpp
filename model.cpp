@@ -96,27 +96,27 @@ void Model::writeFile(const QString& fileName) const
     QFile saveFile(fileName);
     if (!saveFile.open(QIODevice::WriteOnly))
         throw std::runtime_error("Impossibile aprire il file.");
-    QJsonArray jObj;
+    QJsonArray jArr;
 
-    for(unsigned int x = 0; x < matrix->getDataMatrixWidth(); x++){
+    for(unsigned int x = 0; x < matrix->getDataMatrixWidth(); x++){ //loops thru the Matrix and creates JSON arrays
         QJsonObject column;
         (dynamic_cast<NumericData*>(matrix->getDataAt(x,0))) ? column["type"] = "Numeric" : column["type"] = "Text";
         QJsonArray dataArray;
         NumericData* tmp = dynamic_cast<NumericData*>(matrix->getDataAt(x,0));
-        if(tmp){
+        if(tmp){    //creates JSON array for numeric data for JsonObject column;
             for(unsigned int y = 0; y < matrix->getDataMatrixHeigth(); y++)
                 dataArray.append(static_cast<NumericData*>(matrix->getDataAt(x,y))->getData());
         }
-        else{
-            TextData* tmp = dynamic_cast<TextData*>(matrix->getDataAt(x,0));
+        else{    //creates JSON array for text data for JsonObject column;
+            TextData* tmp = dynamic_cast<TextData*>(matrix->getDataAt(x,0)); //not really necessary
             if(tmp)
                 for(unsigned int y = 0; y < matrix->getDataMatrixHeigth(); y++)
                     dataArray.append(static_cast<TextData*>(matrix->getDataAt(x,y))->getData());
         }
-        column["title"] = getColumnTitle(x);
-        column["data"] = dataArray;
-        jObj.append(column);
+        column["title"] = getColumnTitle(x); //sets JsonObject column field "title" to the corrisponding title from the Matrix
+        column["data"] = dataArray; //sets JsonObject column field "data" to the array created previously
+        jArr.append(column); //adds JsonObject column to the JsonArray jArr;
     }
 
-    saveFile.write(QJsonDocument(jObj).toJson());  //write on file
+    saveFile.write(QJsonDocument(jArr).toJson());  //write on file
 }

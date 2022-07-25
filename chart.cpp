@@ -8,8 +8,3 @@ Chart::~Chart()
 {
 
 }
-
-QChart* Chart::draw()
-{
-
-}

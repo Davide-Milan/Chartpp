@@ -114,8 +114,9 @@ public:
 
     /**
      * @brief debug method that prints the whole matrix in the console - removed in production code
-    */
+
     void printDebug() const;
+    */
 };
 
 #endif // MATRIX_H

@@ -9,6 +9,40 @@ Controller::~Controller()
 {
 }
 
+/*
+    ======PRIVATE METHODS======
+*/
+
+
+bool Controller::anyCellSelected(bool row)
+{
+    if(!TextBox::somethingWasSelected){
+        QMessageBox msgBox;
+        row ? msgBox.setText("No row selected") : msgBox.setText("No column selected");
+        msgBox.exec();
+        return false;
+    }
+    return true;
+}
+
+bool Controller::dataIsEmpty()
+{
+    TextBox::somethingWasSelected = false;
+    if(getDataMatrixWidth() < 1){
+        QMessageBox msgBox;
+        msgBox.setText("There's no data to select from");
+        msgBox.exec();
+        return true;
+    }
+    return false;
+}
+
+
+
+/*
+    ======PUBLIC METHODS======
+*/
+
 void Controller::setModel(Model *m) {model = m;}
 
 void Controller::setView(View *v) { view = v;}
@@ -88,21 +122,12 @@ void Controller::clearData()
 void Controller::newFile(){clearData();}
 
 
-bool Controller::anyCellSelected(bool row)
-{
-    if(!TextBox::somethingWasSelected){
-        QMessageBox msgBox;
-        row ? msgBox.setText("No row selected") : msgBox.setText("No column selected");
-        msgBox.exec();
-        return false;
-    }
-    return true;
-}
-
 bool Controller::isNumeric(unsigned int col) const{return model->isNumeric(col);}
 
 
-//SLOTS
+/*
+    ======SLOTS======
+*/
 void Controller::addRow()
 {
     int width = getDataMatrixWidth();
@@ -122,15 +147,15 @@ void Controller::addRow()
 void Controller::deleteRow()
 {
     if(TextBox::getLastSelectedTextBoxCoordinates().second == -1) TextBox::somethingWasSelected = false;    //if the last selected TextBox is a title it will prevent it from deleting all the titles
-    if(!anyCellSelected(true)) return;    
+    if(!anyCellSelected(true)) return;  //true = row - for message box text
 
     TextBox::somethingWasSelected = false;
     unsigned int size = getDataMatrixHeigth();
     if (size > 0){
         unsigned int row = TextBox::getLastSelectedTextBoxCoordinates().second;
-        view->clean();
-        model->deleteRowData(row);
-        view->loadData(getDataMatrix());
+        view->clean();  //cleans the view
+        model->deleteRowData(row);   //deletes the column in the Matrix
+        view->loadData(getDataMatrix());    //the view is reloaded with the updated Matrix - it was done this way because QGrid doesn't have a simple way of moving columns around with deletion
     }
 }
 
@@ -146,6 +171,22 @@ void Controller::addColumn()
     view->addColumn(isNumeric);
 }
 
+
+void Controller::deleteColumn()
+{
+    if(!anyCellSelected(false)) return; //false = column - for message box text
+
+    TextBox::somethingWasSelected = false;
+    unsigned int size = getDataMatrixWidth();
+    if (size > 0){
+        unsigned int col = TextBox::getLastSelectedTextBoxCoordinates().first;
+        view->clean();  //cleans the view
+        model->deleteColumnData(col);   //deletes the column in the Matrix
+        view->loadData(getDataMatrix());    //the view is reloaded with the updated Matrix - it was done this way because QGrid doesn't have a simple way of moving columns around with deletion
+    }
+}
+
+
 void Controller::lineChart()
 {
     dataIsEmpty();
@@ -159,21 +200,22 @@ void Controller::lineChart()
         try{
             title = view->showChartTitleSelector();
         }
-        catch(bool){ //if the dialog for title selection is closed it will interrupt the method
+        catch(bool){    //the dialog for title selection was closed, interrupts the creation process
             return;
         }
 
         QVector<int> chosenNumericIndexes;
-        QVector<int>* numericDataIndexesLeft = model->getNumericDataIndexes();
+        QVector<int>* numericDataIndexesLeft = model->getNumericDataIndexes();  //gets the indexes of all numeric columns
         bool choose = true;
-        while(choose){
+        while(choose){  //loops until cancel is pressed in the input dialog or until all columns are selected
             if(numericDataIndexesLeft->size() > 0){
-                int numericIndex;
+                int numericIndex = -1;
                 try{
                     numericIndex = view->showColumnSelectionDialogNumeric(numericDataIndexesLeft);
                 }
-                catch(bool){
-                    return;
+                catch(bool){    //cancel was pressed, if it was the first selection the creation process is stopped, else it will continue
+                    if(chosenNumericIndexes.isEmpty())
+                        return;
                 }
                 if(numericIndex >= 0){
                     chosenNumericIndexes.append(numericIndex);
@@ -185,12 +227,12 @@ void Controller::lineChart()
         }
         delete numericDataIndexesLeft;
 
-        if(chosenNumericIndexes.size() < 1){
+        if(chosenNumericIndexes.size() < 1){  //need to select at least one numeric column
             QMessageBox msgBox;
             msgBox.setText("No data was selected, try again");
             msgBox.exec();
         }
-        else{
+        else{ //at least one numeric column was selected, creates the chart
             view->drawChart((model->createLineChart(title, chosenNumericIndexes))->draw());
         }
     }
@@ -209,30 +251,31 @@ void Controller::barChart()
         try{
             title = view->showChartTitleSelector();
         }
-        catch(bool){
+        catch(bool){    //the dialog for title selection was closed, interrupts the creation process
             return;
         }
         int chosenTextIndex = -1;
         QVector<int> chosenNumericIndexes;
         if(model->getNumberOfTexts() > 0){
-            QVector<int>* textDataIndexes = model->getTextDataIndexes();
+            QVector<int>* textDataIndexes = model->getTextDataIndexes();      //gets the indexes of all text columns
             try{
                 chosenTextIndex = view->showColumnSelectionDialogOptionalSingleText(textDataIndexes, tr("Select an OPTIONAL text data column"));
             }
-            catch(bool){    //nothing happens beacause the text column is optional in this chart
+            catch(bool){    //cancel selected, nothing happens beacause the text column is optional in this chart
             }
             delete textDataIndexes;
         }
-        QVector<int>* numericDataIndexesLeft = model->getNumericDataIndexes();
+        QVector<int>* numericDataIndexesLeft = model->getNumericDataIndexes();    //gets the indexes of all numeric columns
         bool choose = true;
-        while(choose){
+        while(choose){  //loops until cancel is pressed in the input dialog or until all columns are selected
             if(numericDataIndexesLeft->size() > 0){
                 int numericIndex;
                 try{
                     numericIndex = view->showColumnSelectionDialogNumeric(numericDataIndexesLeft);
                 }
-                catch(bool){
-                    return;
+                catch(bool){    //cancel was pressed, if it was the first selection the creation process is stopped, else it will continue
+                    if(chosenNumericIndexes.isEmpty())
+                        return;
                 }
                 if(numericIndex >= 0){
                     chosenNumericIndexes.append(numericIndex);
@@ -244,28 +287,16 @@ void Controller::barChart()
         }
         delete numericDataIndexesLeft;
 
-        if(chosenNumericIndexes.size() < 1){
+        if(chosenNumericIndexes.size() < 1){ //need to select at least one numeric column
             QMessageBox msgBox;
             msgBox.setText("No data was selected, try again");
             msgBox.exec();
         }
-        else{
+        else{ //at least one numeric column was selected, creates the chart
             view->drawChart((model->createBarChart(title, chosenNumericIndexes, chosenTextIndex))->draw());
         }
 
     }
-}
-
-bool Controller::dataIsEmpty()
-{
-    TextBox::somethingWasSelected = false;
-    if(getDataMatrixWidth() < 1){
-        QMessageBox msgBox;
-        msgBox.setText("There's no data to select from");
-        msgBox.exec();
-        return true;
-    }
-    return false;
 }
 
 void Controller::pieChart()
@@ -280,12 +311,12 @@ void Controller::pieChart()
         try{
             title = view->showChartTitleSelector();
         }
-        catch(bool){
+        catch(bool){    //the dialog for title selection was closed, interrupts the creation process
             return;
         }
         int chosenTextIndex = -1;
         if(model->getNumberOfTexts() > 0){
-            QVector<int>* textDataIndexes = model->getTextDataIndexes();
+            QVector<int>* textDataIndexes = model->getTextDataIndexes();    //gets the indexes of all text columns
             try{
                 chosenTextIndex = view->showColumnSelectionDialogOptionalSingleText(textDataIndexes, tr("Select one text column"));
             }
@@ -295,33 +326,19 @@ void Controller::pieChart()
         }
         int numericIndex = -1;
         if(model->getNumberOfNumerics() > 0){
-            try{
+            try{    //input dialog with the indexes of all numeric columns
                 numericIndex = view->showColumnSelectionDialogNumeric(model->getNumericDataIndexes());
             }
-            catch(bool){
+            catch(bool){    //nothing is done here, because if a text column was selected the process should still work, checks will be done later
             }
         }
-        if(numericIndex >= 0 || chosenTextIndex >= 0)
+        if(numericIndex >= 0 || chosenTextIndex >= 0)  //at least one numeric column OR one text column was selected, creates the right chart
             view->drawChart((model->createPieChart(title, numericIndex, chosenTextIndex))->draw());
-        else{
+        else{ //need to select at least one column of any type
                 QMessageBox msgBox;
                 msgBox.setText("No data was selected, try again");
                 msgBox.exec();
         }
-    }
-}
-
-void Controller::deleteColumn()
-{
-    if(!anyCellSelected(false)) return;
-
-    TextBox::somethingWasSelected = false;
-    unsigned int size = getDataMatrixWidth();
-    if (size > 0){
-        unsigned int col = TextBox::getLastSelectedTextBoxCoordinates().first;
-        view->clean();
-        model->deleteColumnData(col);
-        view->loadData(getDataMatrix());
     }
 }
 
