@@ -30,3 +30,6 @@ Year: 2022
 ----------------------------------------------------------------  
 
 ## How to use this software:
+
+This is the interface:
+![chartpp infographic](https://user-images.githubusercontent.com/95528465/182260905-8bc5e589-cc9d-4b67-97f5-f647160b7c2c.png)
