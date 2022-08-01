@@ -269,7 +269,7 @@ void Controller::barChart()
         bool choose = true;
         while(choose){  //loops until cancel is pressed in the input dialog or until all columns are selected
             if(numericDataIndexesLeft->size() > 0){
-                int numericIndex;
+                int numericIndex = -1;
                 try{
                     numericIndex = view->showColumnSelectionDialogNumeric(numericDataIndexesLeft);
                 }
