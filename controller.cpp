@@ -318,7 +318,7 @@ void Controller::pieChart()
         if(model->getNumberOfTexts() > 0){
             QVector<int>* textDataIndexes = model->getTextDataIndexes();    //gets the indexes of all text columns
             try{
-                chosenTextIndex = view->showColumnSelectionDialogOptionalSingleText(textDataIndexes, tr("Select one text column"));
+                chosenTextIndex = view->showColumnSelectionDialogOptionalSingleText(textDataIndexes, tr("Select an OPTIONAL text column"));
             }
             catch(bool){
             }

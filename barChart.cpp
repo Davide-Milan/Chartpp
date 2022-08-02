@@ -31,7 +31,7 @@ QChart* BarChart::draw()
         if(!textData.isEmpty())
             bar = new QBarSet(textData.at(y));
         else
-            bar = new QBarSet(QString::number(y));
+            bar = new QBarSet(QString::number(y+1));
         for(int x = 0; x < numericData.size(); x++)
             bar->append(numericData.at(x)->at(y));
         barSeries->append(bar);
