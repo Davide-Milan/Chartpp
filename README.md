@@ -71,4 +71,4 @@ For the second one either select a text column or not, and only one numeric colu
 
 The project only required to implement 3 types of charts, but many more could be implemented
 
-##Now you know how to use this software, happy charting
+## Now you know how to use this software, happy charting
