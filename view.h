@@ -83,7 +83,7 @@ public:
     void deleteRow(unsigned int);
     void addColumn(bool);
     void deleteColumn(unsigned int);
-    void loadData(const Matrix* dataMatrix);  //given a Matrix, genereates the TextBox grid and loads every cell with the right data from the Matrix.
+    void loadData(const Matrix*);  //given a Matrix, genereates the TextBox grid and loads every cell with the right data from the Matrix.
     void clean();  //resets the view
 
     //USER DIALOG INTERACTION METHODS

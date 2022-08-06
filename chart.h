@@ -12,7 +12,6 @@
 class Chart
 {
 public:
-    Chart();
     virtual ~Chart() = 0;
     virtual QChart* draw() = 0;
 };

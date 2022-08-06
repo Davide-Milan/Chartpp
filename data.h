@@ -10,7 +10,6 @@
 class Data
 { 
 public:
-    Data();
     virtual ~Data() = 0;
     virtual void setData(QString) = 0;
 };
